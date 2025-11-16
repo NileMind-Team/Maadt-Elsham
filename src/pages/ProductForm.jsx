@@ -278,7 +278,7 @@ const ProductForm = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-sm sm:text-base lg:text-lg"
+                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm"
                         placeholder="Enter product name"
                         required
                       />
@@ -331,7 +331,7 @@ const ProductForm = () => {
                         onChange={handleInputChange}
                         step="0.01"
                         min="0"
-                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-sm sm:text-base lg:text-lg"
+                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm"
                         placeholder="0.00"
                         required
                       />
@@ -347,7 +347,7 @@ const ProductForm = () => {
                         name="prepTime"
                         value={formData.prepTime}
                         onChange={handleInputChange}
-                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-sm sm:text-base lg:text-lg"
+                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm"
                         placeholder="e.g., 15-20 mins"
                         required
                       />
@@ -363,7 +363,7 @@ const ProductForm = () => {
                         name="calories"
                         value={formData.calories}
                         onChange={handleInputChange}
-                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-sm sm:text-base lg:text-lg"
+                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm"
                         placeholder="e.g., 420 kcal"
                       />
                     </div>
@@ -377,7 +377,7 @@ const ProductForm = () => {
                         <button
                           type="button"
                           onClick={() => toggleDropdown("rating")}
-                          className="w-full flex items-center justify-between border border-gray-200 bg-white rounded-lg px-3 py-2 xs:py-2.5 sm:py-3 text-gray-600 hover:border-[#E41E26] transition-all group text-sm sm:text-base lg:text-lg"
+                          className="w-full flex items-center justify-between border border-gray-200 bg-white rounded-lg px-3 py-2 xs:py-2.5 sm:py-3 text-gray-600 hover:border-[#E41E26] transition-all group text-xs sm:text-sm"
                         >
                           <div className="flex items-center gap-2 xs:gap-3">
                             <span className="text-[#E41E26] text-xs sm:text-sm">
@@ -410,7 +410,7 @@ const ProductForm = () => {
                                     setFormData({ ...formData, rating });
                                     setOpenDropdown(null);
                                   }}
-                                  className="px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 hover:bg-gradient-to-r hover:from-[#fff8e7] hover:to-[#ffe5b4] cursor-pointer text-gray-700 transition-all text-sm sm:text-base border-b border-gray-100 last:border-b-0"
+                                  className="px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 hover:bg-gradient-to-r hover:from-[#fff8e7] hover:to-[#ffe5b4] cursor-pointer text-gray-700 transition-all text-xs sm:text-sm border-b border-gray-100 last:border-b-0"
                                 >
                                   {rating} Stars
                                 </li>
@@ -478,7 +478,7 @@ const ProductForm = () => {
                         value={formData.description}
                         onChange={handleInputChange}
                         rows="3"
-                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 resize-none text-sm sm:text-base lg:text-lg"
+                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 resize-none text-xs sm:text-sm"
                         placeholder="Describe the product in detail..."
                         required
                       />
@@ -513,7 +513,7 @@ const ProductForm = () => {
                           onChange={(e) =>
                             handleIngredientChange(index, e.target.value)
                           }
-                          className="flex-1 border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-1.5 xs:py-2 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                          className="flex-1 border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-1.5 xs:py-2 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm"
                           placeholder={`Ingredient ${index + 1}`}
                         />
                         {formData.ingredients.length > 1 && (
