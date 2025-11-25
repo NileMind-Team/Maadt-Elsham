@@ -37,9 +37,6 @@ const ProductForm = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [selectedDays, setSelectedDays] = useState([]);
   const [imageFile, setImageFile] = useState(null);
-  const [originalImageUrl, setOriginalImageUrl] = useState("");
-  console.log(originalImageUrl);
-  
 
   const daysOfWeek = [
     { id: 0, name: "الأحد" },
@@ -82,11 +79,10 @@ const ProductForm = () => {
           availabilityType: product.isAllTime ? "always" : "custom",
         });
 
-        // Set image preview and original URL
+        // Set image preview
         if (product.imageUrl) {
           const imageUrl = `https://restaurant-template.runasp.net/${product.imageUrl}`;
           setImagePreview(imageUrl);
-          setOriginalImageUrl(imageUrl);
         }
 
         // Set availability data if custom schedule
@@ -185,7 +181,6 @@ const ProductForm = () => {
     const file = e.target.files[0];
 
     if (file) {
-      // التحقق من حجم الملف (5MB كحد أقصى)
       if (file.size > 5 * 1024 * 1024) {
         Swal.fire({
           icon: "error",
@@ -208,7 +203,7 @@ const ProductForm = () => {
         return;
       }
 
-      setHasImageChanged(true); // ← علامة أن الصورة تغيرت
+      setHasImageChanged(true);
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -232,7 +227,7 @@ const ProductForm = () => {
     setImagePreview("");
     setFormData({ ...formData, Image: "" });
     setImageFile(null);
-    setHasImageChanged(true); // ← إضافة هذا السطر
+    setHasImageChanged(true);
   };
 
   const isFormValid = () => {
@@ -300,10 +295,8 @@ const ProductForm = () => {
 
       if (isEditing) {
         if (imageFile) {
-          // صورة جديدة
           formDataToSend.append("Image", imageFile);
         } else if (formData.Image && !hasImageChanged) {
-          // صورة قديمة لم تتغير، حول الـ URL القديم لملف
           try {
             const response = await fetch(formData.Image);
             const blob = await response.blob();
@@ -322,7 +315,6 @@ const ProductForm = () => {
             return;
           }
         } else if (!formData.Image) {
-          // تم حذف الصورة
           formDataToSend.append("Image", "");
         }
       } else {
