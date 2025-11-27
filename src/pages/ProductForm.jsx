@@ -1330,48 +1330,48 @@ const ProductForm = () => {
                 onClick={(e) => e.stopPropagation()}
                 dir="rtl"
               >
-                <div className="bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white p-6 relative">
+                <div className="bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white p-4 sm:p-6 relative">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
-                        <FaCog className="text-2xl" />
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="bg-white/20 p-2 sm:p-3 rounded-2xl backdrop-blur-sm">
+                        <FaCog className="text-xl sm:text-2xl" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold">
+                        <h2 className="text-xl sm:text-2xl font-bold">
                           إدارة أنواع الإضافات
                         </h2>
-                        <p className="text-white/80 mt-1">
+                        <p className="text-white/80 mt-1 text-sm sm:text-base">
                           إضافة، تعديل وحذف أنواع الإضافات
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={handleCloseOptionTypesManager}
-                      className="bg-white/20 backdrop-blur-sm rounded-full p-3 text-white hover:bg-white/30 transition-all duration-200 hover:scale-110"
+                      className="bg-white/20 backdrop-blur-sm rounded-full p-2 sm:p-3 text-white hover:bg-white/30 transition-all duration-200 hover:scale-110"
                     >
-                      <FaTimes size={20} />
+                      <FaTimes size={16} className="sm:w-5" />
                     </button>
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 rounded-2xl p-6 mb-8 transition-colors duration-300 shadow-lg">
-                    <div className="flex items-center gap-3 mb-6">
+                <div className="p-4 sm:p-6">
+                  <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 transition-colors duration-300 shadow-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                       <div className="bg-[#E41E26]/10 p-2 rounded-xl">
-                        <FaPlus className="text-[#E41E26] text-lg" />
+                        <FaPlus className="text-[#E41E26] text-base sm:text-lg" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">
                         إضافة نوع إضافة جديد
                       </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-4 sm:gap-6">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
                           اسم نوع الإضافة
                         </label>
                         <div className="relative">
-                          <FaTag className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
+                          <FaTag className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-base" />
                           <input
                             type="text"
                             value={newOptionType.name}
@@ -1382,18 +1382,18 @@ const ProductForm = () => {
                               })
                             }
                             placeholder="أدخل اسم نوع الإضافة الجديد..."
-                            className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-[#E41E26] outline-none transition-all text-right text-lg font-medium"
+                            className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-[#E41E26] outline-none transition-all text-right text-base sm:text-lg font-medium"
                           />
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex justify-start mt-6">
+                    <div className="flex justify-start mt-4 sm:mt-6">
                       <motion.button
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleAddOptionType}
-                        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl transition-all flex items-center gap-3 text-lg shadow-lg"
+                        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold hover:shadow-xl transition-all flex items-center gap-2 sm:gap-3 text-sm sm:text-base shadow-lg"
                       >
                         <FaPlus />
                         إضافة نوع إضافة جديد
@@ -1402,29 +1402,29 @@ const ProductForm = () => {
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                       <div className="bg-[#FDB913]/10 p-2 rounded-xl">
-                        <FaList className="text-[#FDB913] text-lg" />
+                        <FaList className="text-[#FDB913] text-base sm:text-lg" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">
                         أنواع الإضافات الحالية ({optionTypes.length})
                       </h3>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {optionTypes.map((optionType) => (
                         <motion.div
                           key={optionType.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-[#E41E26]/30 dark:hover:border-[#E41E26]/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg group"
+                          className="bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-[#E41E26]/30 dark:hover:border-[#E41E26]/30 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:shadow-lg group"
                         >
                           {editingOptionType &&
                           editingOptionType.id === optionType.id ? (
-                            <div className="space-y-6">
-                              <div className="grid grid-cols-1 gap-6">
+                            <div className="space-y-4 sm:space-y-6">
+                              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                                 <div>
-                                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
                                     اسم نوع الإضافة
                                   </label>
                                   <input
@@ -1436,18 +1436,18 @@ const ProductForm = () => {
                                         name: e.target.value,
                                       })
                                     }
-                                    className="w-full px-4 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-[#E41E26] outline-none transition-all text-right text-lg font-medium"
+                                    className="w-full px-3 sm:px-4 py-3 sm:py-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-[#E41E26] outline-none transition-all text-right text-base sm:text-lg font-medium"
                                     dir="rtl"
                                   />
                                 </div>
                               </div>
 
-                              <div className="flex gap-3 justify-start pt-4 border-t border-gray-200 dark:border-gray-600">
+                              <div className="flex gap-2 sm:gap-3 justify-start pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-600">
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => setEditingOptionType(null)}
-                                  className="px-6 py-3 rounded-xl font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
+                                  className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all text-sm sm:text-base"
                                 >
                                   إلغاء التعديل
                                 </motion.button>
@@ -1455,7 +1455,7 @@ const ProductForm = () => {
                                   whileHover={{ scale: 1.02, y: -2 }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={handleSaveOptionType}
-                                  className="bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2 shadow-lg"
+                                  className="bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold hover:shadow-lg transition-all flex items-center gap-2 text-sm sm:text-base shadow-lg"
                                 >
                                   <FaSave />
                                   حفظ التغييرات
@@ -1464,35 +1464,34 @@ const ProductForm = () => {
                             </div>
                           ) : (
                             // View Mode
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
-                                  <FaCog className="text-blue-600 text-lg" />
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                              <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-xl">
+                                  <FaCog className="text-blue-600 text-base sm:text-lg" />
                                 </div>
                                 <div>
                                   <h4
-                                    className="font-bold text-gray-800 dark:text-gray-200 text-lg mb-1"
+                                    className="font-bold text-gray-800 dark:text-gray-200 text-base sm:text-lg mb-1"
                                     dir={
                                       isArabic(optionType.name) ? "rtl" : "ltr"
                                     }
                                   >
                                     {optionType.name}
                                   </h4>
-
                                 </div>
                               </div>
 
-                              <div className="flex gap-2">
+                              <div className="flex gap-1 sm:gap-2 justify-end sm:justify-start">
                                 <motion.button
                                   whileHover={{ scale: 1.1, y: -2 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() =>
                                     handleEditOptionType(optionType)
                                   }
-                                  className="bg-blue-500 text-white p-3 rounded-xl hover:bg-blue-600 transition-all shadow-md"
+                                  className="bg-blue-500 text-white p-2 sm:p-3 rounded-xl hover:bg-blue-600 transition-all shadow-md"
                                   title="تعديل نوع الإضافة"
                                 >
-                                  <FaEdit size={18} />
+                                  <FaEdit size={16} className="sm:w-4 sm:h-4" />
                                 </motion.button>
                                 <motion.button
                                   whileHover={{ scale: 1.1, y: -2 }}
@@ -1500,10 +1499,13 @@ const ProductForm = () => {
                                   onClick={() =>
                                     handleDeleteOptionType(optionType.id)
                                   }
-                                  className="bg-red-500 text-white p-3 rounded-xl hover:bg-red-600 transition-all shadow-md"
+                                  className="bg-red-500 text-white p-2 sm:p-3 rounded-xl hover:bg-red-600 transition-all shadow-md"
                                   title="حذف نوع الإضافة"
                                 >
-                                  <FaTrash size={18} />
+                                  <FaTrash
+                                    size={16}
+                                    className="sm:w-4 sm:h-4"
+                                  />
                                 </motion.button>
                               </div>
                             </div>

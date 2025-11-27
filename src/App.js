@@ -27,6 +27,10 @@ function App() {
     return saved ? JSON.parse(saved) : false;
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const hideNavbarFooterPaths = [
     "/login",
     "/register",
