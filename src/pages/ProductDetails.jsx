@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -12,6 +12,9 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaCheck,
+  FaPlusCircle,
+  FaSave,
+  FaTimes,
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -31,6 +34,15 @@ const ProductDetails = () => {
   const [selectedAddons, setSelectedAddons] = useState({});
   const [isSticky, setIsSticky] = useState(false);
   const [addonsData, setAddonsData] = useState([]);
+  const [showOptionModal, setShowOptionModal] = useState(false);
+  const [editingOption, setEditingOption] = useState(null);
+  const [currentAddonId, setCurrentAddonId] = useState(null);
+  const [optionForm, setOptionForm] = useState({
+    name: "",
+    price: 0,
+  });
+
+  const modalRef = useRef(null);
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -68,83 +80,89 @@ const ProductDetails = () => {
     checkUserRole();
   }, []);
 
+  const fetchProductDetails = async () => {
+    try {
+      setLoading(true);
+
+      const response = await axiosInstance.get(`/api/MenuItems/Get/${id}`);
+      const productData = response.data;
+
+      const transformedAddons =
+        productData.typesWithOptions?.map((type) => ({
+          id: type.id,
+          title: type.name,
+          type: type.canSelectMultipleOptions ? "multiple" : "single",
+          required: type.isSelectionRequired,
+          canSelectMultipleOptions: type.canSelectMultipleOptions,
+          isSelectionRequired: type.isSelectionRequired,
+          options:
+            type.menuItemOptions?.map((option) => ({
+              id: option.id,
+              name: option.name,
+              price: option.price,
+              typeId: type.id,
+              branchMenuItemOption: option.branchMenuItemOption || [],
+            })) || [],
+        })) || [];
+
+      setAddonsData(transformedAddons);
+
+      const transformedProduct = {
+        id: productData.id,
+        name: productData.name,
+        category: productData.category?.name?.toLowerCase() || "meals",
+        categoryId: productData.category?.id,
+        price: productData.basePrice,
+        image: productData.imageUrl
+          ? `https://restaurant-template.runasp.net/${productData.imageUrl}`
+          : "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
+        ingredients: [],
+        description: productData.description,
+        isActive: productData.isActive,
+        calories: productData.calories,
+        preparationTimeStart: productData.preparationTimeStart,
+        preparationTimeEnd: productData.preparationTimeEnd,
+        availabilityTime: {
+          alwaysAvailable: productData.isAllTime,
+          startTime:
+            productData.menuItemSchedules?.[0]?.startTime?.substring(0, 5) ||
+            "",
+          endTime:
+            productData.menuItemSchedules?.[0]?.endTime?.substring(0, 5) || "",
+        },
+        availabilityDays: {
+          everyday: productData.isAllTime,
+          specificDays:
+            productData.menuItemSchedules?.map((schedule) =>
+              getDayName(schedule.day)
+            ) || [],
+        },
+        menuItemSchedules: productData.menuItemSchedules || [],
+        typesWithOptions: productData.typesWithOptions || [],
+        canSelectMultipleOptions: productData.canSelectMultipleOptions,
+        isSelectionRequired: productData.isSelectionRequired,
+      };
+
+      setProduct(transformedProduct);
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+      Swal.fire({
+        icon: "error",
+        title: "خطأ",
+        text: "فشل في تحميل تفاصيل المنتج",
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate("/");
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true);
-
-        const response = await axiosInstance.get(`/api/MenuItems/Get/${id}`);
-        const productData = response.data;
-
-        const transformedAddons =
-          productData.typesWithOptions?.map((type) => ({
-            id: type.id,
-            title: type.name,
-            type: "multiple",
-            required: false,
-            options:
-              type.menuItemOptions?.map((option) => ({
-                id: option.id,
-                name: option.name,
-                price: option.price,
-              })) || [],
-          })) || [];
-
-        setAddonsData(transformedAddons);
-
-        const transformedProduct = {
-          id: productData.id,
-          name: productData.name,
-          category: productData.category?.name?.toLowerCase() || "meals",
-          categoryId: productData.category?.id,
-          price: productData.basePrice,
-          image: productData.imageUrl
-            ? `https://restaurant-template.runasp.net/${productData.imageUrl}`
-            : "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
-          ingredients: [],
-          description: productData.description,
-          isActive: productData.isActive,
-          calories: productData.calories,
-          preparationTimeStart: productData.preparationTimeStart,
-          preparationTimeEnd: productData.preparationTimeEnd,
-          availabilityTime: {
-            alwaysAvailable: productData.isAllTime,
-            startTime:
-              productData.menuItemSchedules?.[0]?.startTime?.substring(0, 5) ||
-              "",
-            endTime:
-              productData.menuItemSchedules?.[0]?.endTime?.substring(0, 5) ||
-              "",
-          },
-          availabilityDays: {
-            everyday: productData.isAllTime,
-            specificDays:
-              productData.menuItemSchedules?.map((schedule) =>
-                getDayName(schedule.day)
-              ) || [],
-          },
-          menuItemSchedules: productData.menuItemSchedules || [],
-          typesWithOptions: productData.typesWithOptions || [],
-        };
-
-        setProduct(transformedProduct);
-      } catch (error) {
-        console.error("Error fetching product details:", error);
-        Swal.fire({
-          icon: "error",
-          title: "خطأ",
-          text: "فشل في تحميل تفاصيل المنتج",
-          timer: 2000,
-          showConfirmButton: false,
-        }).then(() => {
-          navigate("/");
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProductDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
 
   useEffect(() => {
@@ -159,6 +177,24 @@ const ProductDetails = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        handleCloseOptionModal();
+      }
+    };
+
+    if (showOptionModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [showOptionModal]);
 
   const getDayName = (dayNumber) => {
     const days = [
@@ -242,7 +278,9 @@ const ProductDetails = () => {
       return;
     }
 
-    const requiredAddons = addonsData.filter((addon) => addon.required);
+    const requiredAddons = addonsData.filter(
+      (addon) => addon.isSelectionRequired
+    );
     const missingRequiredAddons = requiredAddons.filter(
       (addon) => !selectedAddons[addon.id]
     );
@@ -388,6 +426,131 @@ const ProductDetails = () => {
     }
   };
 
+  const handleOpenAddOptionModal = (addonId) => {
+    setCurrentAddonId(addonId);
+    setEditingOption(null);
+    setOptionForm({
+      name: "",
+      price: 0,
+    });
+    setShowOptionModal(true);
+  };
+
+  const handleOpenEditOptionModal = (addonId, option) => {
+    setCurrentAddonId(addonId);
+    setEditingOption(option);
+    setOptionForm({
+      name: option.name,
+      price: option.price,
+    });
+    setShowOptionModal(true);
+  };
+
+  const handleCloseOptionModal = () => {
+    setShowOptionModal(false);
+    setEditingOption(null);
+    setCurrentAddonId(null);
+    setOptionForm({
+      name: "",
+      price: 0,
+    });
+  };
+
+  const handleOptionFormChange = (e) => {
+    const { name, value } = e.target;
+    setOptionForm((prev) => ({
+      ...prev,
+      [name]: name === "price" ? parseFloat(value) || 0 : value,
+    }));
+  };
+
+  const handleSaveOption = async () => {
+    if (!optionForm.name.trim()) {
+      toast.error("يرجى إدخال اسم الخيار", {
+        position: "top-right",
+        autoClose: 2000,
+        rtl: true,
+      });
+      return;
+    }
+
+    try {
+      if (editingOption) {
+        await axiosInstance.put(
+          `/api/MenuItemOptions/Update/${editingOption.id}`,
+          {
+            name: optionForm.name,
+            price: optionForm.price,
+            typeId: editingOption.typeId,
+          }
+        );
+
+        toast.success("تم تحديث الخيار بنجاح", {
+          position: "top-right",
+          autoClose: 2000,
+          rtl: true,
+        });
+      } else {
+        await axiosInstance.post(`/api/MenuItemOptions/Add`, {
+          menuItemId: parseInt(id),
+          typeId: currentAddonId,
+          name: optionForm.name,
+          price: optionForm.price,
+        });
+
+        toast.success("تم إضافة الخيار بنجاح", {
+          position: "top-right",
+          autoClose: 2000,
+          rtl: true,
+        });
+      }
+
+      await fetchProductDetails();
+      handleCloseOptionModal();
+    } catch (error) {
+      console.error("Error saving option:", error);
+      toast.error("فشل في حفظ الخيار", {
+        position: "top-right",
+        autoClose: 2000,
+        rtl: true,
+      });
+    }
+  };
+
+  const handleDeleteOption = async (optionId) => {
+    Swal.fire({
+      title: "هل أنت متأكد؟",
+      text: "لن تتمكن من التراجع عن هذا الإجراء!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#E41E26",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "نعم، احذفه!",
+      cancelButtonText: "إلغاء",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axiosInstance.delete(`/api/MenuItemOptions/Delete/${optionId}`);
+
+          toast.success("تم حذف الخيار بنجاح", {
+            position: "top-right",
+            autoClose: 2000,
+            rtl: true,
+          });
+
+          await fetchProductDetails();
+        } catch (error) {
+          console.error("Error deleting option:", error);
+          toast.error("فشل في حذف الخيار", {
+            position: "top-right",
+            autoClose: 2000,
+            rtl: true,
+          });
+        }
+      }
+    });
+  };
+
   const isArabic = (text) => {
     const arabicRegex = /[\u0600-\u06FF]/;
     return arabicRegex.test(text);
@@ -439,6 +602,81 @@ const ProductDetails = () => {
         theme="light"
         style={{ zIndex: 9999 }}
       />
+
+      {/* Option Modal */}
+      {showOptionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            ref={modalRef}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6"
+            dir="rtl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                {editingOption ? "تعديل الخيار" : "إضافة خيار جديد"}
+              </h3>
+              <button
+                onClick={handleCloseOptionModal}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              >
+                <FaTimes className="text-lg" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  اسم الخيار *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={optionForm.name}
+                  onChange={handleOptionFormChange}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-transparent"
+                  placeholder="أدخل اسم الخيار"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  السعر (ج.م)
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  value={optionForm.price}
+                  onChange={handleOptionFormChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-transparent"
+                  placeholder="أدخل السعر"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-8">
+              <button
+                onClick={handleCloseOptionModal}
+                className="flex-1 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleSaveOption}
+                className="flex-1 py-3 bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                <FaSave />
+                {editingOption ? "تحديث" : "حفظ"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {cartCount > 0 && (
         <motion.div
@@ -613,10 +851,37 @@ const ProductDetails = () => {
                           dir="rtl"
                         >
                           <div className="flex items-center justify-between mb-2 md:mb-3">
-                            <h3 className="font-semibold text-base md:text-lg text-gray-800 dark:text-gray-200">
-                              {addon.title}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-base md:text-lg text-gray-800 dark:text-gray-200">
+                                {addon.title}
+                              </h3>
+                              {addon.isSelectionRequired && (
+                                <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-300 px-2 py-1 rounded-full">
+                                  مطلوب
+                                </span>
+                              )}
+                            </div>
+
+                            {isAdminOrRestaurantOrBranch && (
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() =>
+                                  handleOpenAddOptionModal(addon.id)
+                                }
+                                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:shadow-lg transition-all"
+                              >
+                                <FaPlusCircle className="text-xs" />
+                                إضافة خيار
+                              </motion.button>
+                            )}
                           </div>
+
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                            {addon.canSelectMultipleOptions
+                              ? "يمكن اختيار أكثر من خيار"
+                              : "يمكن اختيار خيار واحد فقط"}
+                          </p>
 
                           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                             {addon.options.map((option) => {
@@ -624,45 +889,79 @@ const ProductDetails = () => {
                                 addon.id
                               ]?.includes(option.id);
                               return (
-                                <motion.button
-                                  key={option.id}
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() =>
-                                    handleAddonSelect(
-                                      addon.id,
-                                      option.id,
-                                      addon.type
-                                    )
-                                  }
-                                  className={`p-2 md:p-3 rounded-lg md:rounded-xl border-2 transition-all duration-200 flex items-center justify-between ${
-                                    isSelected
-                                      ? "border-[#E41E26] bg-red-50 dark:bg-red-900/20"
-                                      : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500"
-                                  }`}
-                                  dir="rtl"
-                                >
-                                  <div className="flex items-center gap-1 md:gap-2">
-                                    <span
-                                      className={`font-medium text-sm md:text-base ${
-                                        isSelected
-                                          ? "text-[#E41E26]"
-                                          : "text-gray-700 dark:text-gray-300"
-                                      }`}
-                                    >
-                                      {option.name}
-                                    </span>
-                                    {isSelected && (
-                                      <FaCheck className="text-[#E41E26] text-xs md:text-sm" />
-                                    )}
-                                  </div>
+                                <div key={option.id} className="relative group">
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() =>
+                                      handleAddonSelect(
+                                        addon.id,
+                                        option.id,
+                                        addon.type
+                                      )
+                                    }
+                                    className={`w-full p-2 md:p-3 rounded-lg md:rounded-xl border-2 transition-all duration-200 flex items-center justify-between ${
+                                      isSelected
+                                        ? "border-[#E41E26] bg-red-50 dark:bg-red-900/20"
+                                        : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500"
+                                    }`}
+                                    dir="rtl"
+                                  >
+                                    <div className="flex items-center gap-1 md:gap-2">
+                                      <span
+                                        className={`font-medium text-sm md:text-base ${
+                                          isSelected
+                                            ? "text-[#E41E26]"
+                                            : "text-gray-700 dark:text-gray-300"
+                                        }`}
+                                      >
+                                        {option.name}
+                                      </span>
+                                      {isSelected && (
+                                        <FaCheck className="text-[#E41E26] text-xs md:text-sm" />
+                                      )}
+                                    </div>
 
-                                  {option.price > 0 && (
-                                    <span className="text-xs md:text-sm text-green-600 dark:text-green-400 font-semibold">
-                                      +{toArabicNumbers(option.price)} ج.م
-                                    </span>
+                                    {option.price > 0 && (
+                                      <span className="text-xs md:text-sm text-green-600 dark:text-green-400 font-semibold">
+                                        +{toArabicNumbers(option.price)} ج.م
+                                      </span>
+                                    )}
+                                  </motion.button>
+
+                                  {/* Admin Options Buttons */}
+                                  {isAdminOrRestaurantOrBranch && (
+                                    <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                      <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenEditOptionModal(
+                                            addon.id,
+                                            option
+                                          );
+                                        }}
+                                        className="bg-blue-500 text-white p-1.5 rounded-lg hover:bg-blue-600 transition-colors"
+                                        title="تعديل"
+                                      >
+                                        <FaEdit className="text-xs" />
+                                      </motion.button>
+                                      <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteOption(option.id);
+                                        }}
+                                        className="bg-red-500 text-white p-1.5 rounded-lg hover:bg-red-600 transition-colors"
+                                        title="حذف"
+                                      >
+                                        <FaTrash className="text-xs" />
+                                      </motion.button>
+                                    </div>
                                   )}
-                                </motion.button>
+                                </div>
                               );
                             })}
                           </div>

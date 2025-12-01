@@ -16,6 +16,10 @@ import {
   FaEdit,
   FaCog,
   FaTag,
+  FaCheckSquare,
+  FaSquare,
+  FaCheckCircle,
+  FaCheck,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axiosInstance from "../api/axiosInstance";
@@ -36,7 +40,11 @@ const ProductForm = () => {
   const [showOptionTypesManager, setShowOptionTypesManager] = useState(false);
   const [optionTypes, setOptionTypes] = useState([]);
   const [editingOptionType, setEditingOptionType] = useState(null);
-  const [newOptionType, setNewOptionType] = useState({ name: "" });
+  const [newOptionType, setNewOptionType] = useState({
+    name: "",
+    canSelectMultipleOptions: false,
+    isSelectionRequired: false,
+  });
 
   const [formData, setFormData] = useState({
     Name: "",
@@ -197,13 +205,21 @@ const ProductForm = () => {
   const handleCloseOptionTypesManager = () => {
     setShowOptionTypesManager(false);
     setEditingOptionType(null);
-    setNewOptionType({ name: "" });
+    setNewOptionType({
+      name: "",
+      canSelectMultipleOptions: false,
+      isSelectionRequired: false,
+    });
     document.body.style.overflow = "auto";
   };
 
   const handleEditOptionType = (optionType) => {
     setEditingOptionType({ ...optionType });
-    setNewOptionType({ name: "" });
+    setNewOptionType({
+      name: "",
+      canSelectMultipleOptions: false,
+      isSelectionRequired: false,
+    });
   };
 
   const handleSaveOptionType = async () => {
@@ -223,6 +239,8 @@ const ProductForm = () => {
         `/api/MenuItemOptionTypes/Update/${editingOptionType.id}`,
         {
           name: editingOptionType.name,
+          canSelectMultipleOptions: editingOptionType.canSelectMultipleOptions,
+          isSelectionRequired: editingOptionType.isSelectionRequired,
         }
       );
 
@@ -269,13 +287,19 @@ const ProductForm = () => {
         "/api/MenuItemOptionTypes/Add",
         {
           name: newOptionType.name,
+          canSelectMultipleOptions: newOptionType.canSelectMultipleOptions,
+          isSelectionRequired: newOptionType.isSelectionRequired,
         }
       );
 
       const newOptionTypeData = response.data;
 
       setOptionTypes([...optionTypes, newOptionTypeData]);
-      setNewOptionType({ name: "" });
+      setNewOptionType({
+        name: "",
+        canSelectMultipleOptions: false,
+        isSelectionRequired: false,
+      });
 
       Swal.fire({
         icon: "success",
@@ -1288,7 +1312,21 @@ const ProductForm = () => {
                                       }}
                                       className="px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 cursor-pointer text-gray-700 transition-all text-xs border-b border-gray-100 last:border-b-0 dark:hover:from-gray-500 dark:hover:to-gray-400 dark:text-gray-300 dark:border-gray-500"
                                     >
-                                      {type.name}
+                                      <div className="flex flex-col">
+                                        <span>{type.name}</span>
+                                        <div className="flex gap-2 mt-1">
+                                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {type.canSelectMultipleOptions
+                                              ? "✓ متعدد"
+                                              : "✗ فردي"}
+                                          </span>
+                                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {type.isSelectionRequired
+                                              ? "✓ مطلوب"
+                                              : "✗ اختياري"}
+                                          </span>
+                                        </div>
+                                      </div>
                                     </li>
                                   ))}
                                 </motion.ul>
@@ -1775,6 +1813,82 @@ const ProductForm = () => {
                           />
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                          <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                            <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={newOptionType.canSelectMultipleOptions}
+                                onChange={(e) =>
+                                  setNewOptionType({
+                                    ...newOptionType,
+                                    canSelectMultipleOptions: e.target.checked,
+                                  })
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                                  newOptionType.canSelectMultipleOptions
+                                    ? "bg-green-500 border-green-500"
+                                    : "bg-white border-gray-300 dark:bg-gray-600 dark:border-gray-500"
+                                }`}
+                              >
+                                {newOptionType.canSelectMultipleOptions && (
+                                  <FaCheck className="text-white text-sm" />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-800 dark:text-gray-200 block">
+                                اختيار متعدد
+                              </span>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                يسمح باختيار أكثر من خيار
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+
+                        <div>
+                          <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                            <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={newOptionType.isSelectionRequired}
+                                onChange={(e) =>
+                                  setNewOptionType({
+                                    ...newOptionType,
+                                    isSelectionRequired: e.target.checked,
+                                  })
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                                  newOptionType.isSelectionRequired
+                                    ? "bg-red-500 border-red-500"
+                                    : "bg-white border-gray-300 dark:bg-gray-600 dark:border-gray-500"
+                                }`}
+                              >
+                                {newOptionType.isSelectionRequired && (
+                                  <FaCheck className="text-white text-sm" />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-800 dark:text-gray-200 block">
+                                اختيار مطلوب
+                              </span>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                يجب على العميل اختيار خيار واحد على الأقل
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex justify-start mt-4 sm:mt-6">
@@ -1831,6 +1945,89 @@ const ProductForm = () => {
                                 </div>
                               </div>
 
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                <div>
+                                  <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                                    <div className="relative">
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          editingOptionType.canSelectMultipleOptions
+                                        }
+                                        onChange={(e) =>
+                                          setEditingOptionType({
+                                            ...editingOptionType,
+                                            canSelectMultipleOptions:
+                                              e.target.checked,
+                                          })
+                                        }
+                                        className="sr-only"
+                                      />
+                                      <div
+                                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                                          editingOptionType.canSelectMultipleOptions
+                                            ? "bg-green-500 border-green-500"
+                                            : "bg-white border-gray-300 dark:bg-gray-600 dark:border-gray-500"
+                                        }`}
+                                      >
+                                        {editingOptionType.canSelectMultipleOptions && (
+                                          <FaCheck className="text-white text-sm" />
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <span className="font-semibold text-gray-800 dark:text-gray-200 block">
+                                        اختيار متعدد
+                                      </span>
+                                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        يسمح باختيار أكثر من خيار
+                                      </span>
+                                    </div>
+                                  </label>
+                                </div>
+
+                                <div>
+                                  <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                                    <div className="relative">
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          editingOptionType.isSelectionRequired
+                                        }
+                                        onChange={(e) =>
+                                          setEditingOptionType({
+                                            ...editingOptionType,
+                                            isSelectionRequired:
+                                              e.target.checked,
+                                          })
+                                        }
+                                        className="sr-only"
+                                      />
+                                      <div
+                                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                                          editingOptionType.isSelectionRequired
+                                            ? "bg-red-500 border-red-500"
+                                            : "bg-white border-gray-300 dark:bg-gray-600 dark:border-gray-500"
+                                        }`}
+                                      >
+                                        {editingOptionType.isSelectionRequired && (
+                                          <FaCheck className="text-white text-sm" />
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <span className="font-semibold text-gray-800 dark:text-gray-200 block">
+                                        اختيار مطلوب
+                                      </span>
+                                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        يجب على العميل اختيار خيار واحد على
+                                        الأقل
+                                      </span>
+                                    </div>
+                                  </label>
+                                </div>
+                              </div>
+
                               <div className="flex gap-2 sm:gap-3 justify-start pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-600">
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
@@ -1867,6 +2064,46 @@ const ProductForm = () => {
                                   >
                                     {optionType.name}
                                   </h4>
+                                  <div className="flex gap-3 mt-2">
+                                    <div
+                                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 ${
+                                        optionType.canSelectMultipleOptions
+                                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                          : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300"
+                                      }`}
+                                    >
+                                      {optionType.canSelectMultipleOptions ? (
+                                        <>
+                                          <FaCheckSquare className="text-xs" />
+                                          متعدد الاختيار
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FaSquare className="text-xs" />
+                                          اختيار فردي
+                                        </>
+                                      )}
+                                    </div>
+                                    <div
+                                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 ${
+                                        optionType.isSelectionRequired
+                                          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                          : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300"
+                                      }`}
+                                    >
+                                      {optionType.isSelectionRequired ? (
+                                        <>
+                                          <FaCheckCircle className="text-xs" />
+                                          مطلوب
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FaSquare className="text-xs" />
+                                          اختياري
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
 
