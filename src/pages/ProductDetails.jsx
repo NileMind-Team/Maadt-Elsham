@@ -1412,7 +1412,7 @@ const ProductDetails = () => {
                       addonsData.map((addon) => (
                         <div
                           key={addon.id}
-                          className="bg-gray-50 dark:bg-gray-700/50 rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 dark:border-gray-600"
+                          className="bg-gray-50 dark:bg-gray-700/50 rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 dark:border-gray-600 relative group"
                           dir="rtl"
                         >
                           <div className="flex items-center justify-between mb-2 md:mb-3">
@@ -1447,19 +1447,13 @@ const ProductDetails = () => {
                             )}
                           </div>
 
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                            {addon.canSelectMultipleOptions
-                              ? "يمكن اختيار أكثر من خيار"
-                              : "يمكن اختيار خيار واحد فقط"}
-                          </p>
-
                           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                             {addon.options.map((option) => {
                               const isSelected = selectedAddons[
                                 addon.id
                               ]?.includes(option.id);
                               return (
-                                <div key={option.id} className="relative group">
+                                <div key={option.id} className="relative">
                                   <motion.button
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
@@ -1500,7 +1494,7 @@ const ProductDetails = () => {
                                   </motion.button>
 
                                   {isAdminOrRestaurantOrBranch && (
-                                    <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <div className="absolute -top-2 -right-2 flex gap-1 z-10">
                                       <motion.button
                                         whileHover={{ scale: 1.1 }}
                                         whileTap={{ scale: 0.9 }}
@@ -1511,7 +1505,7 @@ const ProductDetails = () => {
                                             option
                                           );
                                         }}
-                                        className="bg-blue-500 text-white p-1.5 rounded-lg hover:bg-blue-600 transition-colors"
+                                        className="bg-blue-500 text-white p-1.5 rounded-lg hover:bg-blue-600 transition-colors shadow-md"
                                         title="تعديل"
                                       >
                                         <FaEdit className="text-xs" />
@@ -1523,7 +1517,7 @@ const ProductDetails = () => {
                                           e.stopPropagation();
                                           handleDeleteOption(option.id);
                                         }}
-                                        className="bg-red-500 text-white p-1.5 rounded-lg hover:bg-red-600 transition-colors"
+                                        className="bg-red-500 text-white p-1.5 rounded-lg hover:bg-red-600 transition-colors shadow-md"
                                         title="حذف"
                                       >
                                         <FaTrash className="text-xs" />

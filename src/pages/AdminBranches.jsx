@@ -189,10 +189,25 @@ export default function AdminBranches() {
 
   const handlePhoneInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setPhoneNumber({
-      ...phoneNumber,
-      [name]: type === "checkbox" ? checked : value,
-    });
+
+    if (name === "isWhatsapp") {
+      if (phoneNumber.type !== "Mobile") {
+        setPhoneNumber({
+          ...phoneNumber,
+          isWhatsapp: false,
+        });
+        return;
+      }
+      setPhoneNumber({
+        ...phoneNumber,
+        [name]: checked,
+      });
+    } else {
+      setPhoneNumber({
+        ...phoneNumber,
+        [name]: type === "checkbox" ? checked : value,
+      });
+    }
   };
 
   const handleSelectChange = (name, value) => {
@@ -204,10 +219,16 @@ export default function AdminBranches() {
   };
 
   const handlePhoneTypeSelect = (type) => {
-    setPhoneNumber({
+    const updatedPhoneNumber = {
       ...phoneNumber,
       type: type,
-    });
+    };
+
+    if (type !== "Mobile") {
+      updatedPhoneNumber.isWhatsapp = false;
+    }
+
+    setPhoneNumber(updatedPhoneNumber);
     setOpenDropdown(null);
   };
 
@@ -238,7 +259,8 @@ export default function AdminBranches() {
     const newPhoneNumber = {
       phone: phoneNumber.phone,
       type: phoneNumber.type,
-      isWhatsapp: phoneNumber.isWhatsapp,
+      isWhatsapp:
+        phoneNumber.type === "Mobile" ? phoneNumber.isWhatsapp : false,
     };
 
     setFormData({
@@ -281,7 +303,7 @@ export default function AdminBranches() {
       phoneNumbers: formData.phoneNumbers.map((phone) => ({
         phone: phone.phone,
         type: phone.type,
-        isWhatsapp: phone.isWhatsapp,
+        isWhatsapp: phone.type === "Mobile" ? phone.isWhatsapp : false,
       })),
     };
 
@@ -346,7 +368,7 @@ export default function AdminBranches() {
         ? branch.phoneNumbers.map((phone) => ({
             phone: phone.phone,
             type: phone.type,
-            isWhatsapp: phone.isWhatsapp,
+            isWhatsapp: phone.type === "Mobile" ? phone.isWhatsapp : false,
           }))
         : [],
     });
@@ -1128,16 +1150,44 @@ export default function AdminBranches() {
                             </div>
 
                             <div className="flex items-center justify-center gap-2 py-2">
-                              <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-400 cursor-pointer">
+                              <label
+                                className={`flex items-center gap-2 text-xs font-semibold cursor-pointer ${
+                                  phoneNumber.type !== "Mobile"
+                                    ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                                    : "text-gray-600 dark:text-gray-400"
+                                }`}
+                              >
                                 <input
                                   type="checkbox"
                                   name="isWhatsapp"
                                   checked={phoneNumber.isWhatsapp}
                                   onChange={handlePhoneInputChange}
-                                  className="w-3 h-3 text-[#E41E26] bg-gray-100 border-gray-300 rounded focus:ring-[#E41E26] focus:ring-1"
+                                  disabled={phoneNumber.type !== "Mobile"}
+                                  className={`w-3 h-3 text-[#E41E26] bg-gray-100 border-gray-300 rounded focus:ring-[#E41E26] focus:ring-1 ${
+                                    phoneNumber.type !== "Mobile"
+                                      ? "cursor-not-allowed opacity-50"
+                                      : ""
+                                  }`}
                                 />
-                                <FaWhatsapp className="text-green-500 text-sm" />
-                                <span>واتساب</span>
+                                <FaWhatsapp
+                                  className={`text-sm ${
+                                    phoneNumber.type !== "Mobile"
+                                      ? "text-gray-400 dark:text-gray-500"
+                                      : "text-green-500"
+                                  }`}
+                                />
+                                <span
+                                  className={
+                                    phoneNumber.type !== "Mobile"
+                                      ? "opacity-70"
+                                      : ""
+                                  }
+                                >
+                                  واتساب{" "}
+                                  {phoneNumber.type !== "Mobile"
+                                    ? "(غير متاح)"
+                                    : ""}
+                                </span>
                               </label>
                             </div>
 
@@ -1183,6 +1233,9 @@ export default function AdminBranches() {
                                     </div>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">
                                       ({getPhoneTypeArabic(phone.type)})
+                                      {phone.type !== "Mobile" &&
+                                        phone.isWhatsapp &&
+                                        " - الواتساب غير متاح لهذا النوع"}
                                     </span>
                                   </div>
                                 </div>

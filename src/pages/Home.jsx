@@ -41,6 +41,7 @@ const Home = () => {
   const [showCategoriesManager, setShowCategoriesManager] = useState(false);
   const [categories, setCategories] = useState([
     { id: "all", name: "جميع العناصر" },
+    { id: "offers", name: "العروض" },
   ]);
   const [editingCategory, setEditingCategory] = useState(null);
   const [newCategory, setNewCategory] = useState({ name: "", isActive: true });
@@ -95,6 +96,7 @@ const Home = () => {
 
         const transformedCategories = [
           { id: "all", name: "جميع العناصر" },
+          { id: "offers", name: "العروض" },
           ...categoriesData.map((category) => ({
             id: category.id.toString(),
             name: category.name,
@@ -125,7 +127,7 @@ const Home = () => {
         setProductsLoading(true);
 
         const params = {};
-        if (selectedCategory !== "all") {
+        if (selectedCategory !== "all" && selectedCategory !== "offers") {
           params.categoryId = parseInt(selectedCategory);
         }
 
@@ -173,10 +175,19 @@ const Home = () => {
               ? product.basePrice * (1 - product.itemOffer.discountValue / 100)
               : product.basePrice - product.itemOffer.discountValue
             : product.basePrice,
+          hasOffer: product.itemOffer && product.itemOffer.isEnabled,
         }));
 
         setProducts(transformedProducts);
-        setFilteredProducts(transformedProducts);
+        let filtered = transformedProducts;
+
+        if (selectedCategory === "offers") {
+          filtered = transformedProducts.filter(
+            (product) => product.itemOffer && product.itemOffer.isEnabled
+          );
+        }
+
+        setFilteredProducts(filtered);
       } catch (error) {
         console.error("Error fetching products:", error);
         Swal.fire({
@@ -194,7 +205,6 @@ const Home = () => {
     fetchProducts();
   }, [selectedCategory]);
 
-  // دالة لجلب عدد العناصر في الكارت
   const fetchCartItemsCount = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -203,7 +213,6 @@ const Home = () => {
       const response = await axiosInstance.get("/api/CartItems/GetAll");
       const cartItems = response.data;
 
-      // حساب العدد الإجمالي للعناصر في الكارت
       const totalCount = cartItems.reduce(
         (total, item) => total + item.quantity,
         0
@@ -229,7 +238,7 @@ const Home = () => {
     };
 
     fetchFavorites();
-    fetchCartItemsCount(); // جلب عدد العناصر في الكارت عند تحميل الصفحة
+    fetchCartItemsCount();
   }, []);
 
   const getDayName = (dayNumber) => {
@@ -247,11 +256,37 @@ const Home = () => {
 
   useEffect(() => {
     if (!searchTerm) {
-      setFilteredProducts(products);
+      if (selectedCategory === "offers") {
+        setFilteredProducts(
+          products.filter(
+            (product) => product.itemOffer && product.itemOffer.isEnabled
+          )
+        );
+      } else if (selectedCategory === "all") {
+        setFilteredProducts(products);
+      } else {
+        setFilteredProducts(
+          products.filter(
+            (product) => product.categoryId === parseInt(selectedCategory)
+          )
+        );
+      }
       return;
     }
 
-    const filtered = products.filter(
+    let baseProducts = products;
+
+    if (selectedCategory === "offers") {
+      baseProducts = products.filter(
+        (product) => product.itemOffer && product.itemOffer.isEnabled
+      );
+    } else if (selectedCategory !== "all") {
+      baseProducts = products.filter(
+        (product) => product.categoryId === parseInt(selectedCategory)
+      );
+    }
+
+    const filtered = baseProducts.filter(
       (product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -261,7 +296,7 @@ const Home = () => {
     );
 
     setFilteredProducts(filtered);
-  }, [searchTerm, products]);
+  }, [searchTerm, products, selectedCategory]);
 
   const isProductInFavorites = (productId) => {
     return favorites.some((fav) => fav.menuItemId === productId);
@@ -286,7 +321,6 @@ const Home = () => {
 
     try {
       if (isProductInFavorites(product.id)) {
-        // Remove from favorites
         const favoriteItem = favorites.find(
           (fav) => fav.menuItemId === product.id
         );
@@ -303,12 +337,10 @@ const Home = () => {
           theme: "light",
         });
       } else {
-        // Add to favorites
         await axiosInstance.post("/api/Favorites/Add", {
           menuItemId: product.id,
         });
 
-        // Fetch updated favorites
         const response = await axiosInstance.get("/api/Favorites/GetAll");
         setFavorites(response.data);
 
@@ -369,14 +401,12 @@ const Home = () => {
     }
 
     try {
-      // استخدام الـ API لإضافة المنتج إلى الكارت
       await axiosInstance.post("/api/CartItems/AddCartItem", {
         menuItemId: product.id,
         quantity: 1,
-        options: [], // يمكنك تعديل هذا إذا كان هناك خيارات للمنتج
+        options: [],
       });
 
-      // تحديث عدد العناصر في الكارت
       await fetchCartItemsCount();
 
       Swal.fire({
@@ -522,6 +552,16 @@ const Home = () => {
   };
 
   const handleEditCategory = (category) => {
+    if (category.id === "all" || category.id === "offers") {
+      Swal.fire({
+        icon: "error",
+        title: "لا يمكن التعديل",
+        text: "لا يمكن تعديل هذا التصنيف",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return;
+    }
     setEditingCategory({ ...category });
     setNewCategory({ name: "", isActive: true });
   };
@@ -538,11 +578,11 @@ const Home = () => {
       return;
     }
 
-    if (editingCategory.id === "all") {
+    if (editingCategory.id === "all" || editingCategory.id === "offers") {
       Swal.fire({
         icon: "error",
         title: "لا يمكن التعديل",
-        text: "لا يمكن تعديل تصنيف 'جميع العناصر'",
+        text: "لا يمكن تعديل هذا التصنيف",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -636,11 +676,11 @@ const Home = () => {
   };
 
   const handleDeleteCategory = async (categoryId) => {
-    if (categoryId === "all") {
+    if (categoryId === "all" || categoryId === "offers") {
       Swal.fire({
         icon: "error",
         title: "لا يمكن الحذف",
-        text: "لا يمكن حذف تصنيف 'جميع العناصر'",
+        text: "لا يمكن حذف هذا التصنيف",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -710,11 +750,11 @@ const Home = () => {
   const handleToggleCategoryActive = async (categoryId, e) => {
     e.stopPropagation();
 
-    if (categoryId === "all") {
+    if (categoryId === "all" || categoryId === "offers") {
       Swal.fire({
         icon: "error",
         title: "لا يمكن التعديل",
-        text: "لا يمكن تعديل تصنيف 'جميع العناصر'",
+        text: "لا يمكن تعديل هذا التصنيف",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -935,16 +975,20 @@ const Home = () => {
                     ? "bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white shadow-lg"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 } ${
-                  !category.isActive && category.id !== "all"
+                  !category.isActive &&
+                  category.id !== "all" &&
+                  category.id !== "offers"
                     ? "opacity-60"
                     : ""
                 }`}
                 style={{ direction: "rtl" }}
               >
                 <span className="whitespace-nowrap">{category.name}</span>
-                {category.id !== "all" && !category.isActive && (
-                  <span className="text-xs text-red-500">(معطل)</span>
-                )}
+                {category.id !== "all" &&
+                  category.id !== "offers" &&
+                  !category.isActive && (
+                    <span className="text-xs text-red-500">(معطل)</span>
+                  )}
               </motion.button>
             ))}
           </div>
@@ -970,10 +1014,14 @@ const Home = () => {
             <div className="text-center py-12 md:py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-lg mx-2 transition-colors duration-300">
               <FaSearch className="mx-auto text-4xl md:text-6xl text-gray-400 mb-4" />
               <h3 className="text-xl md:text-2xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                لم يتم العثور على منتجات
+                {selectedCategory === "offers"
+                  ? "لا توجد عروض حالياً"
+                  : "لم يتم العثور على منتجات"}
               </h3>
               <p className="text-gray-500 dark:text-gray-500 mb-4 px-4">
-                حاول تعديل معايير البحث أو التصفية
+                {selectedCategory === "offers"
+                  ? "لا توجد منتجات تحتوي على عروض حالياً"
+                  : "حاول تعديل معايير البحث أو التصفية"}
               </p>
               <button
                 onClick={() => {
@@ -988,6 +1036,14 @@ const Home = () => {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 md:py-6 w-full relative">
+            {selectedCategory === "offers" && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 px-2"
+              ></motion.div>
+            )}
+
             <motion.div
               layout
               className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 relative"
@@ -1014,7 +1070,6 @@ const Home = () => {
                     }
                   }}
                 >
-                  {/* عرض الخصم بدلاً من حالة النشاط */}
                   {product.itemOffer && product.itemOffer.isEnabled && (
                     <motion.div
                       initial={{ scale: 0 }}
@@ -1033,7 +1088,6 @@ const Home = () => {
                     </motion.div>
                   )}
 
-                  {/* الأيقونات الإدارية - تم رفعها إلى أعلى البطاقة */}
                   {isAdminOrRestaurantOrBranch && (
                     <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
                       <motion.button
@@ -1084,10 +1138,11 @@ const Home = () => {
                       <div className="flex">
                         <div className="w-28 flex-shrink-0 ml-3">
                           <div className="relative h-32 w-full overflow-hidden rounded-xl">
+                            {/* تغيير هنا: object-contain إلى object-cover وإضافة aspect-square */}
                             <img
                               src={product.image}
                               alt={product.name}
-                              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           </div>
                         </div>
@@ -1188,11 +1243,11 @@ const Home = () => {
                   </div>
 
                   <div className="hidden sm:block">
-                    <div className="relative h-40 sm:h-48 overflow-hidden">
+                    <div className="relative h-48 w-full overflow-hidden">
                       <img
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
 
@@ -1553,7 +1608,7 @@ const Home = () => {
                         <FaList className="text-[#FDB913] text-base sm:text-lg" />
                       </div>
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">
-                        التصنيفات الحالية ({categories.length - 1})
+                        التصنيفات الحالية ({categories.length - 2})
                       </h3>
                     </div>
 
@@ -1564,14 +1619,13 @@ const Home = () => {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           className={`bg-white dark:bg-gray-700 border-2 ${
-                            category.id === "all"
+                            category.id === "all" || category.id === "offers"
                               ? "border-gray-300 dark:border-gray-600"
                               : "border-gray-200 dark:border-gray-600 hover:border-[#E41E26]/30 dark:hover:border-[#E41E26]/30"
                           } rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:shadow-lg group`}
                         >
                           {editingCategory &&
                           editingCategory.id === category.id ? (
-                            // Edit Mode
                             <div className="space-y-4 sm:space-y-6">
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                                 <div className="lg:col-span-2">
@@ -1662,125 +1716,146 @@ const Home = () => {
                               </div>
                             </div>
                           ) : (
-                            // View Mode
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                               <div className="flex items-center gap-3 sm:gap-4">
                                 <div
                                   className={`p-2 sm:p-3 rounded-xl ${
                                     category.id === "all"
                                       ? "bg-gray-100 dark:bg-gray-600"
+                                      : category.id === "offers"
+                                      ? "bg-orange-100 dark:bg-orange-900/30"
                                       : category.isActive
                                       ? "bg-green-100 dark:bg-green-900/30"
                                       : "bg-red-100 dark:bg-red-900/30"
                                   }`}
                                 >
-                                  <FaTag
-                                    className={`text-base sm:text-lg ${
-                                      category.id === "all"
-                                        ? "text-gray-600 dark:text-gray-400"
-                                        : category.isActive
-                                        ? "text-green-600"
-                                        : "text-red-600"
-                                    }`}
-                                  />
+                                  {category.id === "offers" ? (
+                                    <FaFire className="text-orange-600 text-base sm:text-lg" />
+                                  ) : (
+                                    <FaTag
+                                      className={`text-base sm:text-lg ${
+                                        category.id === "all"
+                                          ? "text-gray-600 dark:text-gray-400"
+                                          : category.isActive
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }`}
+                                    />
+                                  )}
                                 </div>
                                 <div>
                                   <h4 className="font-bold text-gray-800 dark:text-gray-200 text-base sm:text-lg mb-1">
                                     {category.name}
                                   </h4>
                                   <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                                    {category.id !== "all" && (
-                                      <>
-                                        <span
-                                          className={`px-2 py-1 rounded-full font-medium ${
-                                            category.isActive
-                                              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                                              : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                                          }`}
-                                        >
-                                          {category.isActive ? "مفعل" : "معطل"}
-                                        </span>
-                                        <span className="text-gray-500 dark:text-gray-400">
-                                          {
-                                            products.filter(
-                                              (p) =>
-                                                p.categoryId ===
-                                                category.originalId
-                                            ).length
-                                          }{" "}
-                                          منتج
-                                        </span>
-                                      </>
+                                    {category.id === "offers" ? (
+                                      <span className="text-orange-600 font-medium">
+                                        {
+                                          products.filter(
+                                            (p) =>
+                                              p.itemOffer &&
+                                              p.itemOffer.isEnabled
+                                          ).length
+                                        }{" "}
+                                        منتج
+                                      </span>
+                                    ) : (
+                                      category.id !== "all" && (
+                                        <>
+                                          <span
+                                            className={`px-2 py-1 rounded-full font-medium ${
+                                              category.isActive
+                                                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                                                : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                                            }`}
+                                          >
+                                            {category.isActive
+                                              ? "مفعل"
+                                              : "معطل"}
+                                          </span>
+                                          <span className="text-gray-500 dark:text-gray-400">
+                                            {
+                                              products.filter(
+                                                (p) =>
+                                                  p.categoryId ===
+                                                  category.originalId
+                                              ).length
+                                            }{" "}
+                                            منتج
+                                          </span>
+                                        </>
+                                      )
                                     )}
                                   </div>
                                 </div>
                               </div>
 
                               <div className="flex gap-1 sm:gap-2 justify-end sm:justify-start">
-                                {category.id !== "all" && (
-                                  <>
-                                    <motion.button
-                                      whileHover={{ scale: 1.1, y: -2 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={(e) =>
-                                        handleToggleCategoryActive(
-                                          category.id,
-                                          e
-                                        )
-                                      }
-                                      className={`p-2 sm:p-3 rounded-xl transition-all shadow-md no-product-details ${
-                                        category.isActive
-                                          ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                                          : "bg-green-500 hover:bg-green-600 text-white"
-                                      }`}
-                                      title={
-                                        category.isActive
-                                          ? "تعطيل التصنيف"
-                                          : "تفعيل التصنيف"
-                                      }
-                                    >
-                                      {category.isActive ? (
-                                        <FaTimesCircle
+                                {category.id !== "all" &&
+                                  category.id !== "offers" && (
+                                    <>
+                                      <motion.button
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={(e) =>
+                                          handleToggleCategoryActive(
+                                            category.id,
+                                            e
+                                          )
+                                        }
+                                        className={`p-2 sm:p-3 rounded-xl transition-all shadow-md no-product-details ${
+                                          category.isActive
+                                            ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                                            : "bg-green-500 hover:bg-green-600 text-white"
+                                        }`}
+                                        title={
+                                          category.isActive
+                                            ? "تعطيل التصنيف"
+                                            : "تفعيل التصنيف"
+                                        }
+                                      >
+                                        {category.isActive ? (
+                                          <FaTimesCircle
+                                            size={16}
+                                            className="sm:w-4 sm:h-4"
+                                          />
+                                        ) : (
+                                          <FaCheckCircle
+                                            size={16}
+                                            className="sm:w-4 sm:h-4"
+                                          />
+                                        )}
+                                      </motion.button>
+                                      <motion.button
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() =>
+                                          handleEditCategory(category)
+                                        }
+                                        className="bg-blue-500 text-white p-2 sm:p-3 rounded-xl hover:bg-blue-600 transition-all shadow-md no-product-details"
+                                        title="تعديل التصنيف"
+                                      >
+                                        <FaEdit
                                           size={16}
                                           className="sm:w-4 sm:h-4"
                                         />
-                                      ) : (
-                                        <FaCheckCircle
+                                      </motion.button>
+                                      <motion.button
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() =>
+                                          handleDeleteCategory(category.id)
+                                        }
+                                        className="bg-red-500 text-white p-2 sm:p-3 rounded-xl hover:bg-red-600 transition-all shadow-md no-product-details"
+                                        title="حذف التصنيف"
+                                      >
+                                        <FaTrash
                                           size={16}
                                           className="sm:w-4 sm:h-4"
                                         />
-                                      )}
-                                    </motion.button>
-                                    <motion.button
-                                      whileHover={{ scale: 1.1, y: -2 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() =>
-                                        handleEditCategory(category)
-                                      }
-                                      className="bg-blue-500 text-white p-2 sm:p-3 rounded-xl hover:bg-blue-600 transition-all shadow-md no-product-details"
-                                      title="تعديل التصنيف"
-                                    >
-                                      <FaEdit
-                                        size={16}
-                                        className="sm:w-4 sm:h-4"
-                                      />
-                                    </motion.button>
-                                    <motion.button
-                                      whileHover={{ scale: 1.1, y: -2 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() =>
-                                        handleDeleteCategory(category.id)
-                                      }
-                                      className="bg-red-500 text-white p-2 sm:p-3 rounded-xl hover:bg-red-600 transition-all shadow-md no-product-details"
-                                      title="حذف التصنيف"
-                                    >
-                                      <FaTrash
-                                        size={16}
-                                        className="sm:w-4 sm:h-4"
-                                      />
-                                    </motion.button>
-                                  </>
-                                )}
+                                      </motion.button>
+                                    </>
+                                  )}
                               </div>
                             </div>
                           )}
