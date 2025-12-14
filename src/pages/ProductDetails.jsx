@@ -442,7 +442,7 @@ const ProductDetails = () => {
         menuItemId: product.id,
         quantity: quantity,
         options: options,
-        additionalNotes: additionalNotes.trim(),
+        note: additionalNotes.trim(),
       });
 
       await fetchCartItemsCount();

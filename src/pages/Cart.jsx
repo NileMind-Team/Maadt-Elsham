@@ -253,7 +253,7 @@ export default function Cart() {
           totalPrice: totalPrice,
           menuItem: item.menuItem,
           menuItemOptions: item.menuItemOptions || [],
-          additionalNotes: item.additionalNotes || "",
+          note: item.note || "",
           hasDiscount: itemOffer?.isEnabled || false,
           discountValue: discountInMoney,
           originalDiscountValue: itemOffer?.discountValue || 0,
@@ -502,8 +502,7 @@ export default function Cart() {
     try {
       setSelectedProduct(item);
       setProductQuantity(item.quantity);
-      // حفظ النوتس الحالية للعنصر
-      setItemNotes(item.additionalNotes || "");
+      setItemNotes(item.note || "");
 
       const response = await axiosInstance.get(
         `/api/MenuItems/Get/${item.menuItem?.id}`
@@ -638,7 +637,6 @@ export default function Cart() {
     try {
       setUpdatingCart(true);
 
-      // التحقق من الإضافات المطلوبة
       const missingRequiredAddons = [];
       productAddons.forEach((addon) => {
         if (addon.isSelectionRequired) {
@@ -662,7 +660,6 @@ export default function Cart() {
         return;
       }
 
-      // تجميع خيارات الإضافات المحددة
       const options = [];
       Object.values(selectedAddons).forEach((optionIds) => {
         optionIds.forEach((optionId) => {
@@ -670,13 +667,11 @@ export default function Cart() {
         });
       });
 
-      // تحديث العنصر في السلة باستخدام PUT مع النوتس الحالية
       await axiosInstance.put(`/api/CartItems/Update/${selectedProduct.id}`, {
         note: itemNotes.trim(),
         options: options,
       });
 
-      // تحديث الكمية باستخدام PUT منفصل إذا تغيرت
       if (productQuantity !== selectedProduct.quantity) {
         await axiosInstance.put(
           `/api/CartItems/UpdateQuantity/${selectedProduct.id}`,
@@ -686,7 +681,6 @@ export default function Cart() {
         );
       }
 
-      // إعادة تحميل عناصر السلة
       await fetchCartItems();
 
       Swal.fire({
@@ -755,12 +749,10 @@ export default function Cart() {
       const newOptionsTotal = optionsPricePerUnit * newQuantity;
       const newTotalPrice = basePrice * newQuantity + newOptionsTotal;
 
-      // استخدام PUT لتحديث الكمية فقط
       await axiosInstance.put(`/api/CartItems/UpdateQuantity/${id}`, {
         quantity: newQuantity,
       });
 
-      // تحديث الحالة المحلية
       setCartItems((prevItems) =>
         prevItems.map((item) => {
           if (item.id === id) {
@@ -1541,18 +1533,6 @@ export default function Cart() {
                             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2 line-clamp-2">
                               {item.description}
                             </p>
-
-                            {item.additionalNotes && (
-                              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                <FaStickyNote className="text-indigo-500 text-xs" />
-                                <span className="text-indigo-600 dark:text-indigo-400">
-                                  {item.additionalNotes.substring(0, 50)}
-                                  {item.additionalNotes.length > 50
-                                    ? "..."
-                                    : ""}
-                                </span>
-                              </div>
-                            )}
 
                             {item.prepTime && (
                               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2">
