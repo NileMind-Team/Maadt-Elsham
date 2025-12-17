@@ -987,9 +987,27 @@ export default function Cart() {
 
       if (error.response?.data?.errors) {
         const errors = error.response.data.errors;
+
+        const userNotActiveError = errors.find(
+          (error) =>
+            error.code === "User" && error.description === "User is not active."
+        );
+
         const branchClosedError = errors.find(
           (error) => error.code === "Branch.Closed"
         );
+
+        if (userNotActiveError) {
+          Swal.fire({
+            icon: "error",
+            title: "الحساب غير نشط",
+            text: "حسابك غير نشط حالياً. الرجاء التواصل مع إدارة المطعم لتفعيل الحساب.",
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+          return;
+        }
 
         if (branchClosedError) {
           Swal.fire({
