@@ -23,6 +23,9 @@ import {
   FaSyncAlt,
   FaPrint,
   FaStore,
+  FaStickyNote,
+  FaInfoCircle,
+  FaListAlt,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axiosInstance from "../api/axiosInstance";
@@ -1980,82 +1983,152 @@ export default function MyOrders() {
                               return (
                                 <div
                                   key={index}
-                                  className="flex items-start gap-3 sm:gap-4 p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                                  className="border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl overflow-hidden"
                                 >
-                                  <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                                    {imageUrl ? (
-                                      <img
-                                        src={`${BASE_URL}${imageUrl}`}
-                                        alt={itemName}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.target.onerror = null;
-                                          e.target.src =
-                                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z'/%3E%3C/svg%3E";
-                                        }}
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-600">
-                                        <FaBox className="text-gray-400 dark:text-gray-500 text-lg sm:text-xl" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-gray-800 dark:text-gray-200 text-sm sm:text-base truncate">
-                                      {itemName}
-                                    </h4>
-                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                      الكمية: {item.quantity}
-                                    </p>
-                                    {itemDescription && (
-                                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                        {itemDescription}
-                                      </p>
-                                    )}
-                                    {item.options &&
-                                      item.options.length > 0 && (
-                                        <div className="mt-2">
-                                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            الإضافات:
-                                          </p>
-                                          <div className="flex flex-wrap gap-1">
-                                            {item.options.map(
-                                              (opt, optIndex) => (
-                                                <span
-                                                  key={optIndex}
-                                                  className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded"
-                                                >
-                                                  {opt.optionNameAtOrder} (+ج.م{" "}
-                                                  {opt.optionPriceAtOrder?.toFixed(
-                                                    2
-                                                  ) || "0.00"}
-                                                  )
-                                                </span>
-                                              )
-                                            )}
-                                          </div>
+                                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800">
+                                    <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                                      {imageUrl ? (
+                                        <img
+                                          src={`${BASE_URL}${imageUrl}`}
+                                          alt={itemName}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src =
+                                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z'/%3E%3C/svg%3E";
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-600">
+                                          <FaBox className="text-gray-400 dark:text-gray-500 text-lg sm:text-xl" />
                                         </div>
                                       )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-semibold text-gray-800 dark:text-gray-200 text-sm sm:text-base truncate">
+                                        {itemName}
+                                      </h4>
+                                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                        الكمية: {item.quantity}
+                                      </p>
+                                      {itemDescription && (
+                                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                          {itemDescription}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="text-right flex-shrink-0">
+                                      <p className="font-bold text-gray-800 dark:text-gray-200 text-sm sm:text-base">
+                                        ج.م {totalPrice?.toFixed(2) || "0.00"}
+                                      </p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 hidden xs:block">
+                                        الأساسي: ج.م {basePrice.toFixed(2)} لكل
+                                      </p>
+                                      {itemAdditions > 0 && (
+                                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                          <FaPlusCircle className="inline w-2 h-2 mr-1" />
+                                          إضافات: +ج.م{" "}
+                                          {itemAdditions.toFixed(2)}
+                                        </p>
+                                      )}
+                                      {itemDiscount > 0 && (
+                                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                          <FaTag className="inline w-2 h-2 mr-1" />
+                                          خصم: -ج.م {itemDiscount.toFixed(2)}
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div className="text-right flex-shrink-0">
-                                    <p className="font-bold text-gray-800 dark:text-gray-200 text-sm sm:text-base">
-                                      ج.م {totalPrice?.toFixed(2) || "0.00"}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden xs:block">
-                                      الأساسي: ج.م {basePrice.toFixed(2)} لكل
-                                    </p>
-                                    {itemAdditions > 0 && (
-                                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                                        <FaPlusCircle className="inline w-2 h-2 mr-1" />
-                                        إضافات: +ج.م {itemAdditions.toFixed(2)}
+
+                                  {/* إضافات المنتج */}
+                                  {item.options && item.options.length > 0 && (
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 p-3 sm:p-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <FaListAlt className="text-blue-600 dark:text-blue-400 w-4 h-4" />
+                                        <h5 className="font-medium text-blue-800 dark:text-blue-300 text-sm sm:text-base">
+                                          إضافات المنتج
+                                        </h5>
+                                      </div>
+                                      <div className="space-y-2">
+                                        {item.options.map(
+                                          (option, optIndex) => (
+                                            <div
+                                              key={optIndex}
+                                              className="flex items-center justify-between bg-white dark:bg-gray-800/50 px-3 py-2 rounded-lg border border-blue-100 dark:border-blue-800"
+                                            >
+                                              <div className="flex items-center gap-2">
+                                                <FaPlusCircle className="text-blue-500 w-3 h-3" />
+                                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                                  {option.optionNameAtOrder ||
+                                                    "إضافة"}
+                                                </span>
+                                              </div>
+                                              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                                +ج.م{" "}
+                                                {option.optionPriceAtOrder?.toFixed(
+                                                  2
+                                                ) || "0.00"}
+                                              </span>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {item.note && (
+                                    <div className="bg-yellow-50 dark:bg-yellow-900/10 border-t border-yellow-100 dark:border-yellow-800 p-3 sm:p-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <FaStickyNote className="text-yellow-600 dark:text-yellow-400 w-4 h-4" />
+                                        <h5 className="font-medium text-yellow-800 dark:text-yellow-300 text-sm sm:text-base">
+                                          ملاحظات خاصة على المنتج
+                                        </h5>
+                                      </div>
+                                      <p className="text-sm text-yellow-700 dark:text-yellow-400 bg-white dark:bg-gray-800/50 px-3 py-2 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                                        {item.note}
                                       </p>
-                                    )}
-                                    {itemDiscount > 0 && (
-                                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                                        <FaTag className="inline w-2 h-2 mr-1" />
-                                        خصم: -ج.م {itemDiscount.toFixed(2)}
-                                      </p>
-                                    )}
+                                    </div>
+                                  )}
+
+                                  <div className="bg-gray-50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700 p-3 sm:p-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                                      <div className="flex items-center gap-2">
+                                        <FaInfoCircle className="text-gray-400 dark:text-gray-500 w-3 h-3" />
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                          السعر الأساسي:
+                                        </span>
+                                        <span className="font-medium text-gray-800 dark:text-gray-200">
+                                          ج.م {basePrice.toFixed(2)}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <FaInfoCircle className="text-gray-400 dark:text-gray-500 w-3 h-3" />
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                          إجمالي الإضافات:
+                                        </span>
+                                        <span className="font-medium text-blue-600 dark:text-blue-400">
+                                          +ج.م {itemAdditions.toFixed(2)}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <FaInfoCircle className="text-gray-400 dark:text-gray-500 w-3 h-3" />
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                          الخصم:
+                                        </span>
+                                        <span className="font-medium text-green-600 dark:text-green-400">
+                                          -ج.م {itemDiscount.toFixed(2)}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <FaInfoCircle className="text-gray-400 dark:text-gray-500 w-3 h-3" />
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                          السعر النهائي:
+                                        </span>
+                                        <span className="font-bold text-[#E41E26]">
+                                          ج.م {totalPrice?.toFixed(2) || "0.00"}
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               );
@@ -2164,28 +2237,100 @@ export default function MyOrders() {
                         </div>
                       </div>
 
-                      {/* Notes */}
-                      {orderDetails.notes && (
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5">
-                          <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2 text-sm sm:text-base">
-                            <svg
-                              className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            ملاحظات خاصة
+                      <div className="space-y-4">
+                        {orderDetails.notes && (
+                          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5">
+                            <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2 text-sm sm:text-base">
+                              <FaStickyNote className="text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+                              ملاحظات عامة على الطلب
+                            </h3>
+                            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 break-words bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                              {orderDetails.notes}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5">
+                          <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2 text-sm sm:text-base">
+                            <FaInfoCircle className="text-[#E41E26] flex-shrink-0" />
+                            معلومات إضافية
                           </h3>
-                          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 break-words">
-                            {orderDetails.notes}
-                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600 dark:text-gray-400">
+                                رقم الطلب:
+                              </span>
+                              <span className="font-medium text-gray-800 dark:text-gray-200">
+                                {orderDetails.orderNumber}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600 dark:text-gray-400">
+                                حالة الطلب:
+                              </span>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                                  orderDetails.status
+                                )}`}
+                              >
+                                {getStatusText(orderDetails.status)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600 dark:text-gray-400">
+                                تاريخ الإنشاء:
+                              </span>
+                              <span className="font-medium text-gray-800 dark:text-gray-200">
+                                {addTwoHoursToDate(
+                                  orderDetails.createdAt
+                                ).toLocaleDateString("ar-SA", {
+                                  year: "numeric",
+                                  month: "numeric",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </div>
+                            {orderDetails.updatedAt && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  تاريخ التحديث:
+                                </span>
+                                <span className="font-medium text-gray-800 dark:text-gray-200">
+                                  {addTwoHoursToDate(
+                                    orderDetails.updatedAt
+                                  ).toLocaleDateString("ar-SA", {
+                                    year: "numeric",
+                                    month: "numeric",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                            )}
+                            {orderDetails.deliveredAt && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  تاريخ التسليم:
+                                </span>
+                                <span className="font-medium text-gray-800 dark:text-gray-200">
+                                  {addTwoHoursToDate(
+                                    orderDetails.deliveredAt
+                                  ).toLocaleDateString("ar-SA", {
+                                    year: "numeric",
+                                    month: "numeric",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
+                      </div>
 
                       {/* Admin Actions */}
                       <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
