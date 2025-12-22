@@ -270,6 +270,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "فشل في تحميل عناصر السلة",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -294,6 +296,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "فشل في تحميل فروع المطعم",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -325,6 +329,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "فشل في تحميل مناطق التوصيل",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -564,6 +570,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "فشل في تحميل تفاصيل المنتج",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -652,6 +660,8 @@ export default function Cart() {
           icon: "warning",
           title: "إضافات مطلوبة",
           text: `الرجاء اختيار ${missingRequiredAddons.join(" و ")}`,
+          timer: 2500,
+          showConfirmButton: false,
           customClass: {
             popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
           },
@@ -687,7 +697,7 @@ export default function Cart() {
         icon: "success",
         title: "تم التحديث!",
         text: "تم تحديث المنتج في سلة التسوق بنجاح",
-        timer: 1500,
+        timer: 2500,
         showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
@@ -701,6 +711,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "فشل في تحديث المنتج",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -778,6 +790,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "فشل في تحديث الكمية",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -812,7 +826,7 @@ export default function Cart() {
             title: "تمت الإزالة!",
             text: "تم إزالة المنتج من سلة التسوق",
             icon: "success",
-            timer: 1500,
+            timer: 2500,
             showConfirmButton: false,
             customClass: {
               popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
@@ -824,6 +838,8 @@ export default function Cart() {
             icon: "error",
             title: "خطأ",
             text: "فشل في إزالة المنتج",
+            timer: 2500,
+            showConfirmButton: false,
             customClass: {
               popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
             },
@@ -851,6 +867,8 @@ export default function Cart() {
         icon: "warning",
         title: "السلة فارغة",
         text: "الرجاء إضافة بعض المنتجات إلى سلة التسوق قبل المتابعة للدفع.",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -863,6 +881,8 @@ export default function Cart() {
         icon: "error",
         title: "خطأ",
         text: "لم يتم العثور على معرف السلة",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -875,6 +895,8 @@ export default function Cart() {
         icon: "warning",
         title: "اختر الفرع",
         text: "الرجاء اختيار فرع المطعم",
+        timer: 2500,
+        showConfirmButton: false,
         customClass: {
           popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
         },
@@ -889,17 +911,11 @@ export default function Cart() {
           icon: "warning",
           title: "أضف عنوان التوصيل",
           text: "يجب إضافة عنوان للتوصيل أولاً.",
-          confirmButtonText: "إضافة عنوان",
-          cancelButtonText: "إلغاء",
-          showCancelButton: true,
-          reverseButtons: true,
+          timer: 2500,
+          showConfirmButton: false,
           customClass: {
             popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
           },
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate("/addresses");
-          }
         });
         return;
       }
@@ -910,6 +926,8 @@ export default function Cart() {
           icon: "warning",
           title: "اختر عنوان التوصيل",
           text: "الرجاء اختيار عنوان التوصيل",
+          timer: 2500,
+          showConfirmButton: false,
           customClass: {
             popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
           },
@@ -922,6 +940,8 @@ export default function Cart() {
           icon: "warning",
           title: "اختر منطقة التوصيل",
           text: "الرجاء اختيار منطقة التوصيل",
+          timer: 2500,
+          showConfirmButton: false,
           customClass: {
             popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
           },
@@ -931,10 +951,6 @@ export default function Cart() {
     }
 
     try {
-      cartItems.reduce((total, item) => {
-        return total + (item.discountValue || 0) * item.quantity;
-      }, 0);
-
       const orderData = {
         branchId: selectedBranch.id,
         deliveryFeeId: getDeliveryFeeId(),
@@ -972,11 +988,10 @@ export default function Cart() {
             </div>
           `,
           icon: null,
-          confirmButtonText: "تتبع طلبي",
-          confirmButtonColor: "#E41E26",
+          timer: 3000,
+          showConfirmButton: false,
           customClass: {
             popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-            confirmButton: "px-8 py-3 rounded-xl font-bold text-lg",
           },
         }).then(() => {
           navigate("/my-orders", { state: { orderData: response.data } });
@@ -988,48 +1003,74 @@ export default function Cart() {
       if (error.response?.data?.errors) {
         const errors = error.response.data.errors;
 
-        const userNotActiveError = errors.find(
-          (error) =>
-            error.code === "User" && error.description === "User is not active."
-        );
+        let errorMessages = [];
 
-        const branchClosedError = errors.find(
-          (error) => error.code === "Branch.Closed"
-        );
+        errors.forEach((errorItem) => {
+          if (
+            errorItem.code === "User" &&
+            errorItem.description === "User is not active."
+          ) {
+            errorMessages.push(
+              "حسابك غير نشط حالياً. الرجاء التواصل مع إدارة المطعم لتفعيل الحساب."
+            );
+          } else if (errorItem.code === "Branch.Closed") {
+            errorMessages.push(
+              "الفرع المختار مغلق حالياً. الرجاء اختيار فرع آخر أو المحاولة عند فتح الفرع."
+            );
+          } else if (errorItem.code === "Cart") {
+            const match = errorItem.description.match(/\d+/g);
+            const unavailableItemIds = match ? match.map(Number) : [];
 
-        if (userNotActiveError) {
-          Swal.fire({
-            icon: "error",
-            title: "الحساب غير نشط",
-            text: "حسابك غير نشط حالياً. الرجاء التواصل مع إدارة المطعم لتفعيل الحساب.",
-            customClass: {
-              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-            },
-          });
-          return;
+            const unavailableItems = cartItems.filter((item) =>
+              unavailableItemIds.includes(item.id)
+            );
+
+            const itemNames = unavailableItems
+              .map((item) => item.name)
+              .join("، ");
+
+            errorMessages.push(
+              `المنتجات التالية غير متاحة في فرع ${
+                selectedBranch?.name || "المختار"
+              }: ${itemNames}. الرجاء إزالتها من السلة أو اختيار فرع آخر.`
+            );
+          } else if (errorItem.code === "DeliveryFee.NotFound") {
+            errorMessages.push(
+              `رسوم ${
+                deliveryType === "delivery" ? "التوصيل" : "الاستلام"
+              } غير متاحة لهذا الفرع حالياً. الرجاء اختيار فرع آخر أو طريقة استلام مختلفة.`
+            );
+          }
+        });
+
+        if (errorMessages.length === 0) {
+          errorMessages.push("فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.");
         }
 
-        if (branchClosedError) {
-          Swal.fire({
-            icon: "error",
-            title: "الفرع مغلق",
-            text: "الفرع المختار مغلق حالياً. الرجاء اختيار فرع آخر أو المحاولة عند فتح الفرع.",
-            customClass: {
-              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-            },
-          });
-          return;
-        }
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          html: errorMessages
+            .map((msg) => `<div class="text-right mb-2">${msg}</div>`)
+            .join(""),
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
       }
-
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.",
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
     }
   };
 
