@@ -595,7 +595,7 @@ const OrderDetailsModal = ({ order, onClose, users }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  الإجمالي قبل الخصم
+                  الإجمالي بعد الخصم
                 </p>
                 <p className="text-xl font-bold text-gray-800 dark:text-white">
                   {order.totalWithoutFee?.toFixed(2) || "0.00"} ج.م
