@@ -30,6 +30,8 @@ import {
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axiosInstance from "../api/axiosInstance";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function MyOrders() {
   const navigate = useNavigate();
@@ -64,6 +66,76 @@ export default function MyOrders() {
   const [selectedBranchId, setSelectedBranchId] = useState("");
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [isAdminOrRestaurant, setIsAdminOrRestaurant] = useState(false);
+
+  const isMobile = () => {
+    return window.innerWidth < 768;
+  };
+
+  const showMessage = (type, title, text, options = {}) => {
+    if (isMobile() && !options.forceSwal) {
+      const toastOptions = {
+        position: "top-right",
+        autoClose: options.timer || 2500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        style: {
+          width: "70vw",
+          maxWidth: "none",
+          minWidth: "200px",
+          fontSize: "14px",
+          borderRadius: "8px",
+          right: "0",
+          top: "0",
+          margin: "0",
+          wordBreak: "break-word",
+          overflowWrap: "break-word",
+          zIndex: 9999,
+        },
+        bodyStyle: {
+          padding: "12px 16px",
+          textAlign: "right",
+          direction: "rtl",
+          width: "100%",
+          overflow: "hidden",
+          margin: 0,
+        },
+      };
+
+      switch (type) {
+        case "success":
+          toast.success(text, toastOptions);
+          break;
+        case "error":
+          toast.error(text, toastOptions);
+          break;
+        case "warning":
+          toast.warning(text, toastOptions);
+          break;
+        case "info":
+          toast.info(text, toastOptions);
+          break;
+        default:
+          toast(text, toastOptions);
+      }
+    } else {
+      Swal.fire({
+        icon: type,
+        title: title,
+        text: text,
+        confirmButtonColor: options.confirmButtonColor || "#E41E26",
+        timer: options.timer || 2500,
+        showConfirmButton:
+          options.showConfirmButton !== undefined
+            ? options.showConfirmButton
+            : false,
+        ...options,
+      });
+    }
+  };
 
   const addTwoHoursToDate = (dateString) => {
     const date = new Date(dateString);
@@ -294,14 +366,11 @@ export default function MyOrders() {
     } catch (error) {
       console.error("Error fetching orders:", error);
       if (!selectedOrder) {
-        Swal.fire({
-          icon: "error",
-          title: "خطأ",
-          text: "فشل تحميل الطلبات. يرجى المحاولة مرة أخرى.",
-          confirmButtonColor: "#E41E26",
-          timer: 2500,
-          showConfirmButton: false,
-        });
+        showMessage(
+          "error",
+          "خطأ",
+          "فشل تحميل الطلبات. يرجى المحاولة مرة أخرى."
+        );
       }
       setOrders([]);
       setTotalPages(1);
@@ -319,14 +388,7 @@ export default function MyOrders() {
 
   const submitStatusUpdate = async () => {
     if (!selectedOrderForStatus || !newStatus) {
-      Swal.fire({
-        icon: "warning",
-        title: "تحذير",
-        text: "يرجى اختيار حالة جديدة",
-        confirmButtonColor: "#E41E26",
-        timer: 2500,
-        showConfirmButton: false,
-      });
+      showMessage("warning", "تحذير", "يرجى اختيار حالة جديدة");
       return;
     }
 
@@ -356,15 +418,13 @@ export default function MyOrders() {
       if (response.status === 200 || response.status === 204) {
         closeStatusModal();
 
-        await Swal.fire({
-          icon: "success",
-          title: "تم بنجاح!",
-          text: `تم تحديث حالة الطلب #${
+        showMessage(
+          "success",
+          "تم بنجاح!",
+          `تم تحديث حالة الطلب #${
             selectedOrderForStatus.orderNumber
-          } إلى "${getStatusText(newStatus)}"`,
-          timer: 2500,
-          showConfirmButton: false,
-        });
+          } إلى "${getStatusText(newStatus)}"`
+        );
 
         setOrders(
           orders.map((order) =>
@@ -392,13 +452,7 @@ export default function MyOrders() {
         errorMessage = error.response.data.message || errorMessage;
       }
 
-      await Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: errorMessage,
-        timer: 2500,
-        showConfirmButton: false,
-      });
+      showMessage("error", "خطأ", errorMessage);
     } finally {
       setUpdatingStatus(false);
     }
@@ -453,27 +507,14 @@ export default function MyOrders() {
           }));
         }
 
-        Swal.fire({
-          title: "تم الإلغاء!",
-          text: "تم إلغاء الطلب بنجاح.",
-          icon: "success",
-          timer: 2500,
-          showConfirmButton: false,
-        });
+        showMessage("success", "تم الإلغاء!", "تم إلغاء الطلب بنجاح.");
 
         setTimeout(() => {
           fetchOrders();
         }, 500);
       } catch (error) {
         console.error("Error cancelling order:", error);
-        Swal.fire({
-          icon: "error",
-          title: "خطأ",
-          text: "فشل إلغاء الطلب. يرجى المحاولة مرة أخرى.",
-          confirmButtonColor: "#E41E26",
-          timer: 2500,
-          showConfirmButton: false,
-        });
+        showMessage("error", "خطأ", "فشل إلغاء الطلب. يرجى المحاولة مرة أخرى.");
       }
     }
   };
@@ -496,24 +537,15 @@ export default function MyOrders() {
       );
 
       if (response.status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: "تم بنجاح!",
-          text: "تم إرسال طلب إعادة الطباعة بنجاح",
-          timer: 2500,
-          showConfirmButton: false,
-        });
+        showMessage("success", "تم بنجاح!", "تم إرسال طلب إعادة الطباعة بنجاح");
       }
     } catch (error) {
       console.error("Error reprinting order:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل إرسال طلب إعادة الطباعة. يرجى المحاولة مرة أخرى.",
-        confirmButtonColor: "#E41E26",
-        timer: 2500,
-        showConfirmButton: false,
-      });
+      showMessage(
+        "error",
+        "خطأ",
+        "فشل إرسال طلب إعادة الطباعة. يرجى المحاولة مرة أخرى."
+      );
     }
   };
 
@@ -850,7 +882,6 @@ export default function MyOrders() {
         }));
       }
 
-      // حساب الأسعار من تفاصيل الطلب
       if (details) {
         const calculatedPrices = calculatePricesFromOrderDetails(details);
         details.calculatedPrices = calculatedPrices;
@@ -859,14 +890,7 @@ export default function MyOrders() {
       setOrderDetails(details);
     } catch (error) {
       console.error("Error fetching order details:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل تحميل تفاصيل الطلب.",
-        confirmButtonColor: "#E41E26",
-        timer: 2500,
-        showConfirmButton: false,
-      });
+      showMessage("error", "خطأ", "فشل تحميل تفاصيل الطلب.");
     } finally {
       setLoadingOrderDetails(false);
     }
@@ -974,6 +998,52 @@ export default function MyOrders() {
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={true}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{
+          position: "fixed",
+          width: "70vw",
+          maxWidth: "none",
+          minWidth: "200px",
+          top: "10px",
+          right: "10px",
+          left: "auto",
+          bottom: "auto",
+          margin: "0",
+          padding: "0",
+          zIndex: 9999,
+          pointerEvents: "none",
+        }}
+        toastStyle={{
+          width: "100%",
+          marginBottom: "10px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          padding: "0",
+          overflow: "hidden",
+          pointerEvents: "auto",
+        }}
+        bodyStyle={{
+          padding: "12px 16px",
+          textAlign: "right",
+          direction: "rtl",
+          width: "100%",
+          overflow: "hidden",
+          fontSize: "14px",
+          lineHeight: "1.4",
+          margin: 0,
+        }}
+      />
+
       <div
         className={`min-h-screen bg-gradient-to-br from-white via-[#fff8e7] to-[#ffe5b4] dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 px-3 sm:px-4 py-4 sm:py-8 transition-colors duration-300`}
       >

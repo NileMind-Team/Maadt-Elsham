@@ -60,6 +60,76 @@ const ProductDetails = () => {
   const addonTypeModalRef = useRef(null);
   const notesModalRef = useRef(null);
 
+  const isMobile = () => {
+    return window.innerWidth < 768;
+  };
+
+  const showMessage = (type, title, text, options = {}) => {
+    if (isMobile() && !options.forceSwal) {
+      const toastOptions = {
+        position: "top-right",
+        autoClose: options.timer || 2500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        style: {
+          width: "70vw",
+          maxWidth: "none",
+          minWidth: "200px",
+          fontSize: "14px",
+          borderRadius: "8px",
+          right: "0",
+          top: "0",
+          margin: "0",
+          wordBreak: "break-word",
+          overflowWrap: "break-word",
+          zIndex: 9999,
+        },
+        bodyStyle: {
+          padding: "12px 16px",
+          textAlign: "right",
+          direction: "rtl",
+          width: "100%",
+          overflow: "hidden",
+          margin: 0,
+        },
+      };
+
+      switch (type) {
+        case "success":
+          toast.success(text, toastOptions);
+          break;
+        case "error":
+          toast.error(text, toastOptions);
+          break;
+        case "warning":
+          toast.warning(text, toastOptions);
+          break;
+        case "info":
+          toast.info(text, toastOptions);
+          break;
+        default:
+          toast(text, toastOptions);
+      }
+    } else {
+      Swal.fire({
+        icon: type,
+        title: title,
+        text: text,
+        confirmButtonColor: options.confirmButtonColor || "#E41E26",
+        timer: options.timer || 2500,
+        showConfirmButton:
+          options.showConfirmButton !== undefined
+            ? options.showConfirmButton
+            : false,
+        ...options,
+      });
+    }
+  };
+
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -206,15 +276,12 @@ const ProductDetails = () => {
       }
     } catch (error) {
       console.error("Error fetching product details:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحميل تفاصيل المنتج",
+      showMessage("error", "خطأ", "فشل في تحميل تفاصيل المنتج", {
         timer: 2000,
-        showConfirmButton: false,
-      }).then(() => {
-        navigate("/");
       });
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } finally {
       setLoading(false);
     }
@@ -391,16 +458,12 @@ const ProductDetails = () => {
     }
 
     if (!isProductAvailableForCart()) {
-      toast.warning(`لا يمكن إضافة هذا المنتج إلى السلة حالياً`, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        rtl: true,
-      });
+      showMessage(
+        "warning",
+        "تحذير",
+        `لا يمكن إضافة هذا المنتج إلى السلة حالياً`,
+        { timer: 2000 }
+      );
       return;
     }
 
@@ -412,20 +475,13 @@ const ProductDetails = () => {
     );
 
     if (missingRequiredAddons.length > 0) {
-      toast.warning(
+      showMessage(
+        "warning",
+        "تحذير",
         `يرجى اختيار ${missingRequiredAddons
           .map((addon) => addon.title)
           .join(" و ")}`,
-        {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "light",
-          rtl: true,
-        }
+        { timer: 2000 }
       );
       return;
     }
@@ -447,18 +503,11 @@ const ProductDetails = () => {
 
       await fetchCartItemsCount();
 
-      toast.success(
+      showMessage(
+        "success",
+        "تم بنجاح!",
         `تم إضافة ${toArabicNumbers(quantity)} ${product.name} إلى سلة التسوق`,
-        {
-          position: "top-right",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "light",
-          rtl: true,
-        }
+        { timer: 1500 }
       );
 
       setQuantity(1);
@@ -466,15 +515,8 @@ const ProductDetails = () => {
       setAdditionalNotes("");
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("فشل في إضافة المنتج إلى السلة", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        rtl: true,
+      showMessage("error", "خطأ", "فشل في إضافة المنتج إلى السلة", {
+        timer: 2000,
       });
     }
   };
@@ -497,24 +539,15 @@ const ProductDetails = () => {
       if (result.isConfirmed) {
         try {
           await axiosInstance.delete(`/api/MenuItems/Delete/${product.id}`);
-          Swal.fire({
-            title: "تم الحذف!",
-            text: "تم حذف المنتج بنجاح",
-            icon: "success",
+          showMessage("success", "تم الحذف!", "تم حذف المنتج بنجاح", {
             timer: 2000,
-            showConfirmButton: false,
-          }).then(() => {
-            navigate("/");
           });
+          setTimeout(() => {
+            navigate("/");
+          }, 2000);
         } catch (error) {
           console.error("Error deleting product:", error);
-          Swal.fire({
-            icon: "error",
-            title: "خطأ",
-            text: "فشل في حذف المنتج",
-            timer: 2000,
-            showConfirmButton: false,
-          });
+          showMessage("error", "خطأ", "فشل في حذف المنتج", { timer: 2000 });
         }
       }
     });
@@ -522,13 +555,12 @@ const ProductDetails = () => {
 
   const handleToggleActive = async () => {
     if (!canToggleProductActive()) {
-      Swal.fire({
-        icon: "error",
-        title: "لا يمكن التعديل",
-        text: "لا يمكن تعديل حالة المنتج لأن الفئة معطلة",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      showMessage(
+        "error",
+        "لا يمكن التعديل",
+        "لا يمكن تعديل حالة المنتج لأن الفئة معطلة",
+        { timer: 2000 }
+      );
       return;
     }
 
@@ -539,22 +571,15 @@ const ProductDetails = () => {
 
       setProduct({ ...product, isActive: !product.isActive });
 
-      Swal.fire({
-        icon: "success",
-        title: "تم تحديث الحالة!",
-        text: `تم ${product.isActive ? "تعطيل" : "تفعيل"} المنتج`,
-        timer: 1500,
-        showConfirmButton: false,
-      });
+      showMessage(
+        "success",
+        "تم تحديث الحالة!",
+        `تم ${product.isActive ? "تعطيل" : "تفعيل"} المنتج`,
+        { timer: 1500 }
+      );
     } catch (error) {
       console.error("Error updating product status:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحديث حالة المنتج",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      showMessage("error", "خطأ", "فشل في تحديث حالة المنتج", { timer: 2000 });
     }
   };
 
@@ -585,10 +610,8 @@ const ProductDetails = () => {
       }
     } catch (error) {
       console.error("Error fetching offers:", error);
-      toast.error("فشل في تحميل بيانات الخصومات", {
-        position: "top-right",
-        autoClose: 2000,
-        rtl: true,
+      showMessage("error", "خطأ", "فشل في تحميل بيانات الخصومات", {
+        timer: 2000,
       });
     }
   };
@@ -633,11 +656,7 @@ const ProductDetails = () => {
 
   const handleSaveOption = async () => {
     if (!optionForm.name.trim()) {
-      toast.error("يرجى إدخال اسم الخيار", {
-        position: "top-right",
-        autoClose: 2000,
-        rtl: true,
-      });
+      showMessage("error", "خطأ", "يرجى إدخال اسم الخيار", { timer: 2000 });
       return;
     }
 
@@ -652,10 +671,8 @@ const ProductDetails = () => {
           }
         );
 
-        toast.success("تم تحديث الخيار بنجاح", {
-          position: "top-right",
-          autoClose: 2000,
-          rtl: true,
+        showMessage("success", "تم بنجاح!", "تم تحديث الخيار بنجاح", {
+          timer: 2000,
         });
       } else {
         await axiosInstance.post(`/api/MenuItemOptions/Add`, {
@@ -665,10 +682,8 @@ const ProductDetails = () => {
           price: optionForm.price,
         });
 
-        toast.success("تم إضافة الخيار بنجاح", {
-          position: "top-right",
-          autoClose: 2000,
-          rtl: true,
+        showMessage("success", "تم بنجاح!", "تم إضافة الخيار بنجاح", {
+          timer: 2000,
         });
       }
 
@@ -676,11 +691,7 @@ const ProductDetails = () => {
       handleCloseOptionModal();
     } catch (error) {
       console.error("Error saving option:", error);
-      toast.error("فشل في حفظ الخيار", {
-        position: "top-right",
-        autoClose: 2000,
-        rtl: true,
-      });
+      showMessage("error", "خطأ", "فشل في حفظ الخيار", { timer: 2000 });
     }
   };
 
@@ -699,20 +710,14 @@ const ProductDetails = () => {
         try {
           await axiosInstance.delete(`/api/MenuItemOptions/Delete/${optionId}`);
 
-          toast.success("تم حذف الخيار بنجاح", {
-            position: "top-right",
-            autoClose: 2000,
-            rtl: true,
+          showMessage("success", "تم بنجاح!", "تم حذف الخيار بنجاح", {
+            timer: 2000,
           });
 
           await fetchProductDetails();
         } catch (error) {
           console.error("Error deleting option:", error);
-          toast.error("فشل في حذف الخيار", {
-            position: "top-right",
-            autoClose: 2000,
-            rtl: true,
-          });
+          showMessage("error", "خطأ", "فشل في حذف الخيار", { timer: 2000 });
         }
       }
     });
@@ -776,10 +781,8 @@ const ProductDetails = () => {
 
   const handleSaveAddonType = async () => {
     if (!addonTypeForm.name.trim()) {
-      toast.error("يرجى إدخال اسم نوع الإضافة", {
-        position: "top-right",
-        autoClose: 2000,
-        rtl: true,
+      showMessage("error", "خطأ", "يرجى إدخال اسم نوع الإضافة", {
+        timer: 2000,
       });
       return;
     }
@@ -813,21 +816,18 @@ const ProductDetails = () => {
         await Promise.all(optionPromises);
       }
 
-      toast.success("تم إضافة نوع الإضافة مع خياراته بنجاح", {
-        position: "top-right",
-        autoClose: 2000,
-        rtl: true,
-      });
+      showMessage(
+        "success",
+        "تم بنجاح!",
+        "تم إضافة نوع الإضافة مع خياراته بنجاح",
+        { timer: 2000 }
+      );
 
       await fetchProductDetails();
       handleCloseAddonTypeModal();
     } catch (error) {
       console.error("Error saving addon type:", error);
-      toast.error("فشل في حفظ نوع الإضافة", {
-        position: "top-right",
-        autoClose: 2000,
-        rtl: true,
-      });
+      showMessage("error", "خطأ", "فشل في حفظ نوع الإضافة", { timer: 2000 });
     }
   };
 
@@ -841,19 +841,15 @@ const ProductDetails = () => {
 
   const handleSaveNotes = () => {
     handleCloseNotesModal();
-    toast.success("تم حفظ التعليمات الإضافية", {
-      position: "top-right",
-      autoClose: 1500,
-      rtl: true,
+    showMessage("success", "تم بنجاح!", "تم حفظ التعليمات الإضافية", {
+      timer: 1500,
     });
   };
 
   const handleClearNotes = () => {
     setAdditionalNotes("");
-    toast.info("تم مسح التعليمات الإضافية", {
-      position: "top-right",
-      autoClose: 1500,
-      rtl: true,
+    showMessage("info", "تم المسح", "تم مسح التعليمات الإضافية", {
+      timer: 1500,
     });
   };
 
@@ -897,7 +893,7 @@ const ProductDetails = () => {
       {/* Toast Container */}
       <ToastContainer
         position="top-right"
-        autoClose={2000}
+        autoClose={2500}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -906,7 +902,39 @@ const ProductDetails = () => {
         draggable
         pauseOnHover
         theme="light"
-        style={{ zIndex: 9999 }}
+        style={{
+          position: "fixed",
+          width: "70vw",
+          maxWidth: "none",
+          minWidth: "200px",
+          top: "10px",
+          right: "10px",
+          left: "auto",
+          bottom: "auto",
+          margin: "0",
+          padding: "0",
+          zIndex: 9999,
+          pointerEvents: "none",
+        }}
+        toastStyle={{
+          width: "100%",
+          marginBottom: "10px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          padding: "0",
+          overflow: "hidden",
+          pointerEvents: "auto",
+        }}
+        bodyStyle={{
+          padding: "12px 16px",
+          textAlign: "right",
+          direction: "rtl",
+          width: "100%",
+          overflow: "hidden",
+          fontSize: "14px",
+          lineHeight: "1.4",
+          margin: 0,
+        }}
       />
 
       {/* Option Modal */}

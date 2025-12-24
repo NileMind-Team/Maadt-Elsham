@@ -65,6 +65,8 @@ export default function Cart() {
   const productDetailsModalRef = React.useRef(null);
   const addressDropdownRef = React.useRef(null);
 
+  const isMobile = () => window.innerWidth <= 768;
+
   useEffect(() => {
     fetchCartItems();
     fetchBranches();
@@ -77,6 +79,7 @@ export default function Cart() {
     if (selectedBranch && deliveryType === "delivery") {
       fetchDeliveryAreas(selectedBranch.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBranch, deliveryType]);
 
   useEffect(() => {
@@ -117,6 +120,7 @@ export default function Cart() {
         rtl: true,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
   const fetchDeliveryFees = async () => {
@@ -154,11 +158,24 @@ export default function Cart() {
     } catch (error) {
       console.error("Error fetching user addresses:", error);
       if (error.response?.status !== 404) {
-        toast.error("فشل في تحميل العناوين", {
-          position: "top-right",
-          autoClose: 3000,
-          rtl: true,
-        });
+        if (isMobile()) {
+          toast.error("فشل في تحميل العناوين", {
+            position: "top-right",
+            autoClose: 3000,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "خطأ",
+            text: "فشل في تحميل العناوين",
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
       }
     } finally {
       setLoadingAddresses(false);
@@ -266,16 +283,24 @@ export default function Cart() {
       setCartItems(transformedItems);
     } catch (error) {
       console.error("Error fetching cart items:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحميل عناصر السلة",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("فشل في تحميل عناصر السلة", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في تحميل عناصر السلة",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -292,16 +317,24 @@ export default function Cart() {
       }
     } catch (error) {
       console.error("Error fetching branches:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحميل فروع المطعم",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("فشل في تحميل فروع المطعم", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في تحميل فروع المطعم",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     } finally {
       setLoadingBranches(false);
     }
@@ -325,16 +358,24 @@ export default function Cart() {
       }
     } catch (error) {
       console.error("Error fetching delivery areas:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحميل مناطق التوصيل",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("فشل في تحميل مناطق التوصيل", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في تحميل مناطق التوصيل",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     } finally {
       setLoadingAreas(false);
     }
@@ -566,16 +607,24 @@ export default function Cart() {
       setShowProductDetailsModal(true);
     } catch (error) {
       console.error("Error fetching product details:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحميل تفاصيل المنتج",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("فشل في تحميل تفاصيل المنتج", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في تحميل تفاصيل المنتج",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     }
   };
 
@@ -656,16 +705,24 @@ export default function Cart() {
       });
 
       if (missingRequiredAddons.length > 0) {
-        Swal.fire({
-          icon: "warning",
-          title: "إضافات مطلوبة",
-          text: `الرجاء اختيار ${missingRequiredAddons.join(" و ")}`,
-          timer: 2500,
-          showConfirmButton: false,
-          customClass: {
-            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-          },
-        });
+        if (isMobile()) {
+          toast.warning(`الرجاء اختيار ${missingRequiredAddons.join(" و ")}`, {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "إضافات مطلوبة",
+            text: `الرجاء اختيار ${missingRequiredAddons.join(" و ")}`,
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
         setUpdatingCart(false);
         return;
       }
@@ -693,30 +750,48 @@ export default function Cart() {
 
       await fetchCartItems();
 
-      Swal.fire({
-        icon: "success",
-        title: "تم التحديث!",
-        text: "تم تحديث المنتج في سلة التسوق بنجاح",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
-
       closeProductDetailsModal();
+
+      if (isMobile()) {
+        setTimeout(() => {
+          toast.success("تم تحديث المنتج في سلة التسوق بنجاح", {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          });
+        }, 100);
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "تم التحديث!",
+          text: "تم تحديث المنتج في سلة التسوق بنجاح",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     } catch (error) {
       console.error("Error updating cart item:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحديث المنتج",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("فشل في تحديث المنتج", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في تحديث المنتج",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     } finally {
       setUpdatingCart(false);
     }
@@ -786,16 +861,24 @@ export default function Cart() {
       });
     } catch (error) {
       console.error("Error updating quantity:", error);
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "فشل في تحديث الكمية",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("فشل في تحديث الكمية", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "فشل في تحديث الكمية",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
     }
   };
 
@@ -822,28 +905,46 @@ export default function Cart() {
             prevItems.filter((item) => item.id !== id)
           );
 
-          Swal.fire({
-            title: "تمت الإزالة!",
-            text: "تم إزالة المنتج من سلة التسوق",
-            icon: "success",
-            timer: 2500,
-            showConfirmButton: false,
-            customClass: {
-              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-            },
-          });
+          if (isMobile()) {
+            toast.success("تم إزالة المنتج من سلة التسوق", {
+              position: "top-right",
+              autoClose: 2500,
+              rtl: true,
+            });
+          } else {
+            Swal.fire({
+              title: "تمت الإزالة!",
+              text: "تم إزالة المنتج من سلة التسوق",
+              icon: "success",
+              timer: 2500,
+              showConfirmButton: false,
+              customClass: {
+                popup:
+                  "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+              },
+            });
+          }
         } catch (error) {
           console.error("Error removing item:", error);
-          Swal.fire({
-            icon: "error",
-            title: "خطأ",
-            text: "فشل في إزالة المنتج",
-            timer: 2500,
-            showConfirmButton: false,
-            customClass: {
-              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-            },
-          });
+          if (isMobile()) {
+            toast.error("فشل في إزالة المنتج", {
+              position: "top-right",
+              autoClose: 2500,
+              rtl: true,
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "خطأ",
+              text: "فشل في إزالة المنتج",
+              timer: 2500,
+              showConfirmButton: false,
+              customClass: {
+                popup:
+                  "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+              },
+            });
+          }
         }
       }
     });
@@ -863,89 +964,140 @@ export default function Cart() {
   const handleCheckout = async () => {
     // Case 1: User logged in but cart is empty
     if (cartItems.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "السلة فارغة",
-        text: "الرجاء إضافة بعض المنتجات إلى سلة التسوق قبل المتابعة للدفع.",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.warning(
+          "الرجاء إضافة بعض المنتجات إلى سلة التسوق قبل المتابعة للدفع.",
+          {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          }
+        );
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "السلة فارغة",
+          text: "الرجاء إضافة بعض المنتجات إلى سلة التسوق قبل المتابعة للدفع.",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
       return;
     }
 
     if (!cartId) {
-      Swal.fire({
-        icon: "error",
-        title: "خطأ",
-        text: "لم يتم العثور على معرف السلة",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.error("لم يتم العثور على معرف السلة", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "خطأ",
+          text: "لم يتم العثور على معرف السلة",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
       return;
     }
 
     if (!selectedBranch) {
-      Swal.fire({
-        icon: "warning",
-        title: "اختر الفرع",
-        text: "الرجاء اختيار فرع المطعم",
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-          popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-        },
-      });
+      if (isMobile()) {
+        toast.warning("الرجاء اختيار فرع المطعم", {
+          position: "top-right",
+          autoClose: 2500,
+          rtl: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "اختر الفرع",
+          text: "الرجاء اختيار فرع المطعم",
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: {
+            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+          },
+        });
+      }
       return;
     }
 
     if (deliveryType === "delivery") {
       // Case 2: User logged in but no addresses
       if (userAddresses.length === 0) {
-        Swal.fire({
-          icon: "warning",
-          title: "أضف عنوان التوصيل",
-          text: "يجب إضافة عنوان للتوصيل أولاً.",
-          timer: 2500,
-          showConfirmButton: false,
-          customClass: {
-            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-          },
-        });
+        if (isMobile()) {
+          toast.warning("يجب إضافة عنوان للتوصيل أولاً.", {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "أضف عنوان التوصيل",
+            text: "يجب إضافة عنوان للتوصيل أولاً.",
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
         return;
       }
 
       // Case 3: User logged in with addresses but none selected
       if (!selectedAddress) {
-        Swal.fire({
-          icon: "warning",
-          title: "اختر عنوان التوصيل",
-          text: "الرجاء اختيار عنوان التوصيل",
-          timer: 2500,
-          showConfirmButton: false,
-          customClass: {
-            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-          },
-        });
+        if (isMobile()) {
+          toast.warning("الرجاء اختيار عنوان التوصيل", {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "اختر عنوان التوصيل",
+            text: "الرجاء اختيار عنوان التوصيل",
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
         return;
       }
 
       if (!selectedArea) {
-        Swal.fire({
-          icon: "warning",
-          title: "اختر منطقة التوصيل",
-          text: "الرجاء اختيار منطقة التوصيل",
-          timer: 2500,
-          showConfirmButton: false,
-          customClass: {
-            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-          },
-        });
+        if (isMobile()) {
+          toast.warning("الرجاء اختيار منطقة التوصيل", {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "اختر منطقة التوصيل",
+            text: "الرجاء اختيار منطقة التوصيل",
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
         return;
       }
     }
@@ -1047,29 +1199,45 @@ export default function Cart() {
           errorMessages.push("فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.");
         }
 
-        Swal.fire({
-          icon: "error",
-          title: "خطأ",
-          html: errorMessages
-            .map((msg) => `<div class="text-right mb-2">${msg}</div>`)
-            .join(""),
-          timer: 2500,
-          showConfirmButton: false,
-          customClass: {
-            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-          },
-        });
+        if (isMobile()) {
+          toast.error(errorMessages.join(" "), {
+            position: "top-right",
+            autoClose: 3000,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "خطأ",
+            html: errorMessages
+              .map((msg) => `<div class="text-right mb-2">${msg}</div>`)
+              .join(""),
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "خطأ",
-          text: "فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.",
-          timer: 2500,
-          showConfirmButton: false,
-          customClass: {
-            popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
-          },
-        });
+        if (isMobile()) {
+          toast.error("فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.", {
+            position: "top-right",
+            autoClose: 2500,
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "خطأ",
+            text: "فشل في إنشاء الطلب. الرجاء المحاولة مرة أخرى.",
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: {
+              popup: "rounded-3xl shadow-2xl dark:bg-gray-800 dark:text-white",
+            },
+          });
+        }
       }
     }
   };
@@ -1084,7 +1252,6 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#fff8e7] to-[#ffe5b4] dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 px-3 sm:px-4 py-4 sm:py-8 transition-colors duration-300">
-      {/* Toast Container */}
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -1096,7 +1263,11 @@ export default function Cart() {
         draggable
         pauseOnHover
         theme="light"
-        style={{ zIndex: 9999 }}
+        style={{
+          zIndex: 99999,
+          width: isMobile() ? "70%" : "auto",
+          maxWidth: isMobile() ? "400px" : "auto",
+        }}
       />
 
       {showNotesModal && (
@@ -1188,13 +1359,15 @@ export default function Cart() {
             ref={productDetailsModalRef}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden relative z-10"
+            className={`bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full ${
+              isMobile() ? "max-w-full h-full" : "max-w-2xl max-h-[90vh]"
+            } overflow-hidden relative z-50 flex flex-col`}
             dir="rtl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <div className="flex items-center gap-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className="relative">
                   <img
                     src={
@@ -1203,22 +1376,22 @@ export default function Cart() {
                         : "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop"
                     }
                     alt={productDetails.name}
-                    className="w-16 h-16 rounded-xl object-cover"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover"
                   />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-xl font-bold text-gray-800 dark:text-white truncate">
                     {productDetails.name}
                   </h3>
-                  <div className="flex flex-wrap items-center gap-3 mt-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
                     {productDetails.itemOffer?.isEnabled ? (
-                      <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Prices */}
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500 dark:text-gray-400 text-sm line-through">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm line-through">
                             {toArabicNumbers(productDetails.basePrice)} ج.م
                           </span>
-                          <span className="text-xl font-bold text-[#E41E26]">
+                          <span className="text-base sm:text-xl font-bold text-[#E41E26]">
                             {toArabicNumbers(
                               calculatePriceAfterDiscount(
                                 productDetails.basePrice,
@@ -1230,7 +1403,7 @@ export default function Cart() {
                         </div>
 
                         {/* Discount Badge - AFTER THE PRICE */}
-                        <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-lg font-bold shadow-lg text-sm flex items-center gap-1">
+                        <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg font-bold shadow text-xs sm:text-sm flex items-center gap-1">
                           <span>خصم</span>
                           <span>
                             {toArabicNumbers(
@@ -1244,48 +1417,46 @@ export default function Cart() {
                         </div>
                       </div>
                     ) : (
-                      <span className="text-xl font-bold text-[#E41E26]">
+                      <span className="text-base sm:text-xl font-bold text-[#E41E26]">
                         {toArabicNumbers(productDetails.basePrice)} ج.م
                       </span>
                     )}
-
-                    {/* Calories and Prep Time */}
-                    <div className="flex items-center gap-3">
-                      {productDetails.calories && (
-                        <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400 text-sm">
-                          <FaFire className="text-orange-500 text-sm" />
-                          {toArabicNumbers(productDetails.calories)} كالوري
-                        </span>
-                      )}
-
-                      {productDetails.preparationTimeStart !== null &&
-                        productDetails.preparationTimeEnd !== null && (
-                          <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400 text-sm">
-                            <FaClock className="text-blue-500 text-sm" />
-                            {toArabicNumbers(
-                              productDetails.preparationTimeStart
-                            )}
-                            {productDetails.preparationTimeEnd !== null &&
-                              `-${toArabicNumbers(
-                                productDetails.preparationTimeEnd
-                              )}`}{" "}
-                            دقيقة
-                          </span>
-                        )}
-                    </div>
                   </div>
                 </div>
               </div>
               <button
                 onClick={closeProductDetailsModal}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex-shrink-0"
               >
-                <FaTimes className="text-lg" />
+                <FaTimes className="text-base sm:text-lg" />
               </button>
             </div>
 
             {/* Content - Scrollable */}
-            <div className="overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(90vh-200px)] p-4 sm:p-5 lg:p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6">
+              {/* Calories and Prep Time */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
+                {productDetails.calories && (
+                  <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                    <FaFire className="text-orange-500 text-xs sm:text-sm" />
+                    {toArabicNumbers(productDetails.calories)} كالوري
+                  </span>
+                )}
+
+                {productDetails.preparationTimeStart !== null &&
+                  productDetails.preparationTimeEnd !== null && (
+                    <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                      <FaClock className="text-blue-500 text-xs sm:text-sm" />
+                      {toArabicNumbers(productDetails.preparationTimeStart)}
+                      {productDetails.preparationTimeEnd !== null &&
+                        `-${toArabicNumbers(
+                          productDetails.preparationTimeEnd
+                        )}`}{" "}
+                      دقيقة
+                    </span>
+                  )}
+              </div>
+
               {/* Description */}
               {productDetails.description && (
                 <div className="mb-4 sm:mb-5 lg:mb-6">
@@ -1300,7 +1471,7 @@ export default function Cart() {
 
               {/* Addons - UPDATED DESIGN TO MATCH PRODUCT DETAILS PAGE */}
               {productAddons.length > 0 && (
-                <div className="space-y-4 sm:space-y-5 lg:space-y-6 mb-4 sm:mb-5 lg:mb-6">
+                <div className="space-y-3 sm:space-y-5 lg:space-y-6 mb-4 sm:mb-5 lg:mb-6">
                   {productAddons.map((addon) => {
                     const selectedOptionIds = selectedAddons[addon.id] || [];
 
@@ -1411,8 +1582,8 @@ export default function Cart() {
             </div>
 
             {/* Footer - Quantity and Actions */}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-5 lg:p-6 bg-gray-50 dark:bg-gray-800/50">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-5 lg:p-6 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
                 {/* Quantity Controls */}
                 <div className="flex items-center justify-between w-full md:w-auto gap-3 sm:gap-4">
                   <div className="flex items-center gap-2">
