@@ -848,7 +848,7 @@ export default function MyOrders() {
         details = response.data;
       } else {
         const response = await axiosInstance.get(
-          `/api/Orders/GetByForUserId/${order.id}`,
+          `/api/Orders/GetByIdForUser/${order.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -998,7 +998,6 @@ export default function MyOrders() {
 
   return (
     <>
-
       <div
         className={`min-h-screen bg-gradient-to-br from-white via-[#fff8e7] to-[#ffe5b4] dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 px-3 sm:px-4 py-4 sm:py-8 transition-colors duration-300`}
       >
@@ -1520,13 +1519,18 @@ export default function MyOrders() {
                             )}
                           </div>
 
-                          {/* Customer/Delivery Info */}
+                          {/* Customer/Delivery Info - التعديل هنا */}
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                             <div className="flex items-center gap-2">
                               <FaMapMarkerAlt className="text-[#E41E26] flex-shrink-0 w-3 h-3" />
                               <span className="truncate">
-                                {order.location?.streetName ||
-                                  "لم يتم تحديد العنوان"}
+                                {order.location
+                                  ? order.location.streetName ||
+                                    "لم يتم تحديد العنوان"
+                                  : order.deliveryFee?.areaName ===
+                                    "الاستلام من المكان"
+                                  ? "الاستلام من المطعم"
+                                  : "لم يتم تحديد العنوان"}
                               </span>
                             </div>
                             {order.location?.phoneNumber && (
@@ -1926,43 +1930,77 @@ export default function MyOrders() {
                     </div>
                   ) : orderDetails ? (
                     <div className="space-y-4 sm:space-y-6">
-                      {/* Customer Information */}
+                      {/* Customer Information - التعديل هنا */}
                       <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5">
                         <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2 text-base sm:text-lg">
                           <FaUser className="text-[#E41E26] flex-shrink-0" />
-                          معلومات العميل
+                          {orderDetails.location
+                            ? "معلومات العميل"
+                            : "معلومات الاستلام"}
                         </h3>
                         <div className="space-y-2 sm:space-y-3">
-                          <div className="flex items-start gap-2 sm:gap-3">
-                            <FaPhone className="text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-800 dark:text-gray-200 break-words">
-                                {orderDetails.location?.phoneNumber ||
-                                  "غير متاح"}
-                              </p>
-                            </div>
-                          </div>
+                          {orderDetails.location ? (
+                            <>
+                              <div className="flex items-start gap-2 sm:gap-3">
+                                <FaPhone className="text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="font-medium text-gray-800 dark:text-gray-200 break-words">
+                                    {orderDetails.location?.phoneNumber ||
+                                      "غير متاح"}
+                                  </p>
+                                </div>
+                              </div>
 
-                          <div className="flex items-start gap-2 sm:gap-3">
-                            <FaMapMarkerAlt className="text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-800 dark:text-gray-200 break-words">
-                                {orderDetails.location?.streetName || ""}{" "}
-                                {orderDetails.location?.buildingNumber || ""}
-                              </p>
-                              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 break-words">
-                                {orderDetails.location?.city?.name || ""} -
-                                الطابق{" "}
-                                {orderDetails.location?.floorNumber || ""}، شقة{" "}
-                                {orderDetails.location?.flatNumber || ""}
-                              </p>
-                              {orderDetails.location?.detailedDescription && (
-                                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
-                                  {orderDetails.location.detailedDescription}
+                              <div className="flex items-start gap-2 sm:gap-3">
+                                <FaMapMarkerAlt className="text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="font-medium text-gray-800 dark:text-gray-200 break-words">
+                                    {orderDetails.location?.streetName || ""}{" "}
+                                    {orderDetails.location?.buildingNumber ||
+                                      ""}
+                                  </p>
+                                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 break-words">
+                                    {orderDetails.location?.city?.name || ""} -
+                                    الطابق{" "}
+                                    {orderDetails.location?.floorNumber || ""}،
+                                    شقة{" "}
+                                    {orderDetails.location?.flatNumber || ""}
+                                  </p>
+                                  {orderDetails.location
+                                    ?.detailedDescription && (
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
+                                      {
+                                        orderDetails.location
+                                          .detailedDescription
+                                      }
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex items-start gap-2 sm:gap-3">
+                              <FaMapMarkerAlt className="text-[#E41E26] mt-0.5 flex-shrink-0" />
+                              <div className="min-w-0">
+                                <p className="font-bold text-gray-800 dark:text-gray-200 break-words text-base sm:text-lg">
+                                  الاستلام من المطعم
                                 </p>
-                              )}
+                                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 break-words mt-1">
+                                  سيتم استلام الطلب مباشرة من المطعم
+                                </p>
+                                {orderDetails.deliveryFee?.areaName &&
+                                  orderDetails.deliveryFee?.areaName !==
+                                    "الاستلام من المكان" && (
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                      <span className="font-medium">
+                                        منطقة التوصيل:
+                                      </span>{" "}
+                                      {orderDetails.deliveryFee.areaName}
+                                    </p>
+                                  )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
 
@@ -2056,6 +2094,11 @@ export default function MyOrders() {
                                 (basePrice + itemAdditions) *
                                 (item.quantity || 1);
 
+                              const displayBasePrice =
+                                basePrice === 0
+                                  ? "السعر حسب الطلب"
+                                  : `ج.م ${basePrice.toFixed(2)}`;
+
                               return (
                                 <div
                                   key={index}
@@ -2098,7 +2141,7 @@ export default function MyOrders() {
                                         ج.م {itemFinalPrice.toFixed(2)}
                                       </p>
                                       <p className="text-xs text-gray-500 dark:text-gray-400 hidden xs:block">
-                                        الأساسي: ج.م {basePrice.toFixed(2)} لكل
+                                        الأساسي: {displayBasePrice} لكل
                                       </p>
                                       {itemAdditions > 0 && (
                                         <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -2174,7 +2217,7 @@ export default function MyOrders() {
                                           السعر الأساسي:
                                         </span>
                                         <span className="font-medium text-gray-800 dark:text-gray-200">
-                                          ج.م {basePrice.toFixed(2)}
+                                          {displayBasePrice}
                                         </span>
                                       </div>
                                       <div className="flex items-center gap-2">

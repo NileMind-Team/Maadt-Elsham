@@ -261,6 +261,7 @@ export default function Cart() {
           category: item.menuItem?.category?.name?.toLowerCase() || "meals",
           price: basePrice,
           finalPrice: finalPrice,
+          isPriceBasedOnRequest: basePrice === 0,
           image: item.menuItem?.imageUrl
             ? `https://restaurant-template.runasp.net/${item.menuItem.imageUrl}`
             : "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
@@ -443,6 +444,69 @@ export default function Cart() {
     return 0;
   };
 
+  const formatPriceDisplay = (product) => {
+    if (product.isPriceBasedOnRequest) {
+      return (
+        <div className="text-[#E41E26] dark:text-[#FDB913] font-bold text-base sm:text-lg">
+          السعر حسب الطلب
+        </div>
+      );
+    }
+
+    if (product.hasDiscount) {
+      return (
+        <>
+          <span className="text-gray-500 dark:text-gray-400 text-sm line-through">
+            {toArabicNumbers(product.price.toFixed(2))} ج.م
+          </span>
+          <span className="text-[#E41E26] dark:text-[#FDB913] font-bold text-base sm:text-lg">
+            {toArabicNumbers(product.finalPrice.toFixed(2))} ج.م
+          </span>
+        </>
+      );
+    }
+
+    return (
+      <div className="text-[#E41E26] dark:text-[#FDB913] font-bold text-base sm:text-lg">
+        {toArabicNumbers(product.price.toFixed(2))} ج.م
+      </div>
+    );
+  };
+
+  const formatPriceInModal = (product) => {
+    if (product.basePrice === 0) {
+      return (
+        <span className="text-base sm:text-xl font-bold text-[#E41E26]">
+          السعر حسب الطلب
+        </span>
+      );
+    }
+
+    if (product.itemOffer?.isEnabled) {
+      const priceAfterDiscount = calculatePriceAfterDiscount(
+        product.basePrice,
+        product.itemOffer
+      );
+
+      return (
+        <>
+          <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm line-through">
+            {toArabicNumbers(product.basePrice)} ج.م
+          </span>
+          <span className="text-base sm:text-xl font-bold text-[#E41E26]">
+            {toArabicNumbers(priceAfterDiscount.toFixed(2))} ج.م
+          </span>
+        </>
+      );
+    }
+
+    return (
+      <span className="text-base sm:text-xl font-bold text-[#E41E26]">
+        {toArabicNumbers(product.basePrice)} ج.م
+      </span>
+    );
+  };
+
   const openAddressesPage = () => {
     navigate("/addresses", { state: { fromCart: true } });
   };
@@ -556,6 +620,8 @@ export default function Cart() {
       );
       const productData = response.data;
 
+      productData.isPriceBasedOnRequest = productData.basePrice === 0;
+
       const transformedAddons =
         productData.typesWithOptions?.map((type) => ({
           id: type.id,
@@ -667,6 +733,24 @@ export default function Cart() {
     if (!productDetails) return 0;
 
     const basePrice = productDetails.basePrice || 0;
+
+    if (basePrice === 0) {
+      let total = 0;
+
+      Object.values(selectedAddons).forEach((optionIds) => {
+        optionIds.forEach((optionId) => {
+          productAddons.forEach((addon) => {
+            const option = addon.options.find((opt) => opt.id === optionId);
+            if (option) {
+              total += option.price * productQuantity;
+            }
+          });
+        });
+      });
+
+      return total;
+    }
+
     const priceAfterDiscount = calculatePriceAfterDiscount(
       basePrice,
       productDetails.itemOffer
@@ -1376,25 +1460,12 @@ export default function Cart() {
                     {productDetails.name}
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
-                    {productDetails.itemOffer?.isEnabled ? (
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        {/* Prices */}
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm line-through">
-                            {toArabicNumbers(productDetails.basePrice)} ج.م
-                          </span>
-                          <span className="text-base sm:text-xl font-bold text-[#E41E26]">
-                            {toArabicNumbers(
-                              calculatePriceAfterDiscount(
-                                productDetails.basePrice,
-                                productDetails.itemOffer
-                              )
-                            )}{" "}
-                            ج.م
-                          </span>
-                        </div>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      {formatPriceInModal(productDetails)}
+                    </div>
 
-                        {/* Discount Badge - AFTER THE PRICE */}
+                    {productDetails.itemOffer?.isEnabled &&
+                      productDetails.basePrice !== 0 && (
                         <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg font-bold shadow text-xs sm:text-sm flex items-center gap-1">
                           <span>خصم</span>
                           <span>
@@ -1407,12 +1478,7 @@ export default function Cart() {
                             ج.م
                           </span>
                         </div>
-                      </div>
-                    ) : (
-                      <span className="text-base sm:text-xl font-bold text-[#E41E26]">
-                        {toArabicNumbers(productDetails.basePrice)} ج.م
-                      </span>
-                    )}
+                      )}
                   </div>
                 </div>
               </div>
@@ -1733,13 +1799,16 @@ export default function Cart() {
                               className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl object-cover flex-shrink-0"
                             />
                             {/* Badge for discount */}
-                            {item.hasDiscount && (
-                              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
-                                خصم{" "}
-                                {toArabicNumbers(item.discountValue.toFixed(2))}{" "}
-                                ج.م
-                              </div>
-                            )}
+                            {item.hasDiscount &&
+                              !item.isPriceBasedOnRequest && (
+                                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                                  خصم{" "}
+                                  {toArabicNumbers(
+                                    item.discountValue.toFixed(2)
+                                  )}{" "}
+                                  ج.م
+                                </div>
+                              )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="mb-1 sm:mb-2">
@@ -1750,21 +1819,10 @@ export default function Cart() {
                                 <FaInfoCircle className="text-[#E41E26] opacity-0 group-hover:opacity-100 transition-opacity" />
                               </div>
                             </div>
-                            {item.hasDiscount ? (
-                              <div className="flex items-center gap-2 mb-1 sm:mb-2">
-                                <span className="text-gray-500 dark:text-gray-400 text-sm line-through">
-                                  {toArabicNumbers(item.price.toFixed(2))} ج.م
-                                </span>
-                                <span className="text-[#E41E26] dark:text-[#FDB913] font-bold text-base sm:text-lg">
-                                  {toArabicNumbers(item.finalPrice.toFixed(2))}{" "}
-                                  ج.م
-                                </span>
-                              </div>
-                            ) : (
-                              <p className="text-[#E41E26] dark:text-[#FDB913] font-bold text-base sm:text-lg mb-1 sm:mb-2">
-                                {toArabicNumbers(item.price.toFixed(2))} ج.م
-                              </p>
-                            )}
+
+                            <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                              {formatPriceDisplay(item)}
+                            </div>
 
                             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2 line-clamp-2">
                               {item.description}

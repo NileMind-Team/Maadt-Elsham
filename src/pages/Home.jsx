@@ -334,6 +334,7 @@ const Home = () => {
         category: product.category?.name?.toLowerCase() || "meals",
         categoryId: product.category?.id,
         price: product.basePrice,
+        isPriceBasedOnRequest: product.basePrice === 0,
         image: product.imageUrl
           ? `https://restaurant-template.runasp.net/${product.imageUrl}`
           : "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
@@ -1065,6 +1066,62 @@ const Home = () => {
     }
   };
 
+  const formatPriceDisplay = (product) => {
+    if (product.isPriceBasedOnRequest) {
+      return (
+        <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
+          السعر حسب الطلب
+        </div>
+      );
+    }
+
+    if (product.itemOffer && product.itemOffer.isEnabled) {
+      return (
+        <>
+          <div className="text-gray-400 dark:text-gray-500 text-sm line-through">
+            {product.price} ج.م
+          </div>
+          <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
+            {product.finalPrice.toFixed(2)} ج.م
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
+        {product.price} ج.م
+      </div>
+    );
+  };
+
+  const formatPriceDisplayMobile = (product) => {
+    if (product.isPriceBasedOnRequest) {
+      return (
+        <div className="text-[#E41E26] font-bold text-sm">السعر حسب الطلب</div>
+      );
+    }
+
+    if (product.itemOffer && product.itemOffer.isEnabled) {
+      return (
+        <>
+          <div className="text-gray-400 dark:text-gray-500 text-xs line-through">
+            {product.price} ج.م
+          </div>
+          <div className="text-[#E41E26] font-bold text-sm">
+            {product.finalPrice.toFixed(2)} ج.م
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="text-[#E41E26] font-bold text-sm">
+        {product.price} ج.م
+      </div>
+    );
+  };
+
   const isProductCategoryDisabled = (product) => {
     if (!product.categoryId) {
       return false;
@@ -1435,21 +1492,7 @@ const Home = () => {
                           </p>
 
                           <div className="flex items-center gap-1 mb-3">
-                            {product.itemOffer &&
-                            product.itemOffer.isEnabled ? (
-                              <>
-                                <div className="text-gray-400 dark:text-gray-500 text-xs line-through">
-                                  {product.price} ج.م
-                                </div>
-                                <div className="text-[#E41E26] font-bold text-sm">
-                                  {product.finalPrice.toFixed(2)} ج.م
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-[#E41E26] font-bold text-sm">
-                                {product.price} ج.م
-                              </div>
-                            )}
+                            {formatPriceDisplayMobile(product)}
                           </div>
                         </div>
                       </div>
@@ -1533,20 +1576,7 @@ const Home = () => {
 
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          {product.itemOffer && product.itemOffer.isEnabled ? (
-                            <>
-                              <div className="text-gray-400 dark:text-gray-500 text-sm line-through">
-                                {product.price} ج.م
-                              </div>
-                              <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
-                                {product.finalPrice.toFixed(2)} ج.م
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
-                              {product.price} ج.م
-                            </div>
-                          )}
+                          {formatPriceDisplay(product)}
                         </div>
                         <button
                           onClick={(e) => handleToggleFavorite(product, e)}

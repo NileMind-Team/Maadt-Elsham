@@ -24,6 +24,8 @@ import {
   FaDownload,
   FaImage,
   FaSlidersH,
+  FaDollarSign,
+  FaQuestionCircle,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -56,6 +58,7 @@ const ProductForm = () => {
     Name: "",
     CategoryId: 1,
     BasePrice: "",
+    IsPriceBasedOnRequest: false,
     Image: "",
     Description: "",
     IsActive: true,
@@ -573,6 +576,7 @@ const ProductForm = () => {
           Name: product.name || "",
           CategoryId: product.category?.id || 1,
           BasePrice: product.basePrice || "",
+          IsPriceBasedOnRequest: product.basePrice === 0,
           Image: product.imageUrl
             ? `https://restaurant-template.runasp.net/${product.imageUrl}`
             : "",
@@ -640,6 +644,8 @@ const ProductForm = () => {
       formData.Name !== initialFormData.Name ||
       formData.CategoryId !== initialFormData.CategoryId ||
       formData.BasePrice !== initialFormData.BasePrice ||
+      formData.IsPriceBasedOnRequest !==
+        initialFormData.IsPriceBasedOnRequest ||
       formData.Description !== initialFormData.Description ||
       formData.IsActive !== initialFormData.IsActive ||
       formData.ShowInSlider !== initialFormData.ShowInSlider ||
@@ -706,6 +712,22 @@ const ProductForm = () => {
       setFormData({
         ...formData,
         [name]: value,
+      });
+    }
+  };
+
+  const handlePriceTypeChange = (type) => {
+    if (type === "fixed") {
+      setFormData({
+        ...formData,
+        IsPriceBasedOnRequest: false,
+        BasePrice: formData.BasePrice || "",
+      });
+    } else {
+      setFormData({
+        ...formData,
+        IsPriceBasedOnRequest: true,
+        BasePrice: "0",
       });
     }
   };
@@ -837,6 +859,15 @@ const ProductForm = () => {
   };
 
   const isFormValid = () => {
+    if (formData.IsPriceBasedOnRequest) {
+      return (
+        formData.Name &&
+        formData.CategoryId &&
+        formData.Description &&
+        formData.Image
+      );
+    }
+
     return (
       formData.Name &&
       formData.CategoryId &&
@@ -846,6 +877,17 @@ const ProductForm = () => {
     );
   };
 
+  const hasRequiredOptionTypes = () => {
+    const requiredOptionTypes = menuItemOptions.filter((optionType) => {
+      const optionTypeData = optionTypes.find(
+        (type) => type.id === optionType.typeId
+      );
+      return optionTypeData?.isSelectionRequired === true;
+    });
+
+    return requiredOptionTypes.length > 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -853,11 +895,25 @@ const ProductForm = () => {
     if (
       !formData.Name ||
       !formData.CategoryId ||
-      !formData.BasePrice ||
       !formData.Description ||
       (!isEditing && !formData.Image)
     ) {
       showErrorAlert("معلومات ناقصة", "يرجى ملء جميع الحقول المطلوبة");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.IsPriceBasedOnRequest && !formData.BasePrice) {
+      showErrorAlert("معلومات ناقصة", "يرجى إدخال السعر أو اختيار 'حسب الطلب'");
+      setIsLoading(false);
+      return;
+    }
+
+    if (
+      !formData.IsPriceBasedOnRequest &&
+      parseFloat(formData.BasePrice) <= 0
+    ) {
+      showErrorAlert("خطأ في السعر", "السعر يجب أن يكون أكبر من صفر");
       setIsLoading(false);
       return;
     }
@@ -936,16 +992,32 @@ const ProductForm = () => {
         setIsLoading(false);
         return;
       }
+
+      if (formData.IsPriceBasedOnRequest && !hasRequiredOptionTypes()) {
+        showErrorAlert(
+          "خطأ في الإعدادات",
+          "المنتج بسعر حسب الطلب يجب أن يحتوي على أنواع إضافات مطلوبة للاختيار"
+        );
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("Name", formData.Name);
       formDataToSend.append("Description", formData.Description);
-      formDataToSend.append(
-        "BasePrice",
-        parseFloat(formData.BasePrice).toString()
-      );
+
+      // إرسال السعر بناءً على نوع السعر
+      if (formData.IsPriceBasedOnRequest) {
+        formDataToSend.append("BasePrice", "0");
+      } else {
+        formDataToSend.append(
+          "BasePrice",
+          parseFloat(formData.BasePrice).toString()
+        );
+      }
+
       formDataToSend.append("CategoryId", formData.CategoryId.toString());
       formDataToSend.append("IsActive", formData.IsActive.toString());
       formDataToSend.append("ShowInSlider", formData.ShowInSlider.toString());
@@ -1221,22 +1293,97 @@ const ProductForm = () => {
                       )}
                     </div>
 
-                    <div>
-                      <label className="block text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 mb-1 xs:mb-1.5 sm:mb-2">
-                        السعر (جنيه) *
-                      </label>
-                      <input
-                        type="number"
-                        name="BasePrice"
-                        value={formData.BasePrice}
-                        onChange={handleNumberInputChange}
-                        step="0.01"
-                        min="0"
-                        onWheel={(e) => e.target.blur()}
-                        className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                        placeholder="0.00"
-                        required
-                      />
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 mb-1 xs:mb-1.5 sm:mb-2">
+                          نوع السعر *
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 xs:gap-3 mb-3">
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handlePriceTypeChange("fixed")}
+                            className={`flex items-center justify-center gap-1.5 xs:gap-2 p-2 xs:p-3 rounded-lg border-2 transition-all duration-200 ${
+                              !formData.IsPriceBasedOnRequest
+                                ? "border-[#E41E26] bg-white text-[#E41E26] shadow-md dark:bg-gray-600"
+                                : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 dark:hover:border-gray-400"
+                            }`}
+                          >
+                            <FaDollarSign className="text-xs xs:text-sm" />
+                            <span className="text-xs xs:text-sm font-medium">
+                              سعر ثابت
+                            </span>
+                          </motion.button>
+
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handlePriceTypeChange("request")}
+                            className={`flex items-center justify-center gap-1.5 xs:gap-2 p-2 xs:p-3 rounded-lg border-2 transition-all duration-200 ${
+                              formData.IsPriceBasedOnRequest
+                                ? "border-[#E41E26] bg-white text-[#E41E26] shadow-md dark:bg-gray-600"
+                                : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 dark:hover:border-gray-400"
+                            }`}
+                          >
+                            <FaQuestionCircle className="text-xs xs:text-sm" />
+                            <span className="text-xs xs:text-sm font-medium">
+                              حسب الطلب
+                            </span>
+                          </motion.button>
+                        </div>
+                      </div>
+
+                      {!formData.IsPriceBasedOnRequest && (
+                        <div>
+                          <label className="block text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 mb-1 xs:mb-1.5 sm:mb-2">
+                            السعر (جنيه) *
+                          </label>
+                          <input
+                            type="number"
+                            name="BasePrice"
+                            value={formData.BasePrice}
+                            onChange={handleNumberInputChange}
+                            step="0.01"
+                            min="0.01"
+                            onWheel={(e) => e.target.blur()}
+                            className="w-full border border-gray-200 bg-white text-black rounded-lg px-3 xs:px-4 py-2 xs:py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-[#E41E26] focus:border-transparent transition-all duration-200 text-xs sm:text-sm dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                            placeholder="0.00"
+                            required={!formData.IsPriceBasedOnRequest}
+                          />
+                          {formData.IsPriceBasedOnRequest &&
+                            !isEditing &&
+                            hasRequiredOptionTypes() && (
+                              <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p className="text-xs text-yellow-700">
+                                  <span className="font-semibold">ملاحظة:</span>{" "}
+                                  المنتج بسعر حسب الطلب يجب أن يحتوي على أنواع
+                                  إضافات مطلوبة للاختيار
+                                </p>
+                              </div>
+                            )}
+                        </div>
+                      )}
+
+                      {formData.IsPriceBasedOnRequest && (
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-start gap-2">
+                            <FaQuestionCircle className="text-blue-500 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-blue-700 font-semibold">
+                                السعر حسب الطلب
+                              </p>
+                              <p className="text-xs text-blue-600 mt-1">
+                                سيتم تحديد السعر بناءً على اختيارات العميل من
+                                الإضافات.
+                                {!isEditing &&
+                                  " يجب أن يحتوي المنتج على أنواع إضافات مطلوبة للاختيار."}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -1625,233 +1772,258 @@ const ProductForm = () => {
                       <h3 className="text-sm xs:text-base sm:text-lg font-bold text-gray-800 dark:text-gray-200">
                         الإضافات (خيارات المنتج)
                       </h3>
+                      {formData.IsPriceBasedOnRequest && (
+                        <div className="ml-auto px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
+                          يجب إضافة أنواع إضافات مطلوبة
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-4 xs:space-y-5">
-                      {menuItemOptions.map((optionType, typeIndex) => (
-                        <div
-                          key={optionType.id}
-                          className="bg-white/80 rounded-lg p-3 xs:p-4 border border-gray-200 dark:bg-gray-600/80 dark:border-gray-500"
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-xs xs:text-sm font-semibold text-gray-700 dark:text-gray-300">
-                              نوع الإضافة {typeIndex + 1}
-                            </h4>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                removeMenuItemOption(optionType.id)
-                              }
-                              className="text-red-500 hover:text-red-700 transition-colors"
-                            >
-                              <FaTrash size={14} />
-                            </button>
-                          </div>
+                      {menuItemOptions.map((optionType, typeIndex) => {
+                        const optionTypeData = optionTypes.find(
+                          (type) => type.id === optionType.typeId
+                        );
+                        const isRequired = optionTypeData?.isSelectionRequired;
 
-                          <div className="mb-3 xs:mb-4">
-                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                              نوع الإضافة *
-                            </label>
-                            <div className="relative">
+                        return (
+                          <div
+                            key={optionType.id}
+                            className={`bg-white/80 rounded-lg p-3 xs:p-4 border ${
+                              isRequired && formData.IsPriceBasedOnRequest
+                                ? "border-yellow-300 border-2"
+                                : "border-gray-200"
+                            } dark:bg-gray-600/80 dark:border-gray-500`}
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-xs xs:text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                  نوع الإضافة {typeIndex + 1}
+                                </h4>
+                                {isRequired && (
+                                  <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                    مطلوب
+                                  </span>
+                                )}
+                              </div>
                               <button
                                 type="button"
                                 onClick={() =>
-                                  setOptionTypesDropdownOpen(
-                                    optionTypesDropdownOpen === optionType.id
-                                      ? null
-                                      : optionType.id
-                                  )
+                                  removeMenuItemOption(optionType.id)
                                 }
-                                className="w-full flex items-center justify-between border border-gray-200 bg-white rounded-lg px-3 py-2 text-black focus:ring-2 focus:ring-purple-500 transition-all duration-200 text-xs dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                className="text-red-500 hover:text-red-700 transition-colors"
                               >
-                                <span>
-                                  {optionType.typeId
-                                    ? optionTypes.find(
-                                        (type) => type.id === optionType.typeId
-                                      )?.name || "اختر النوع"
-                                    : "اختر النوع"}
-                                </span>
-                                <motion.div
-                                  animate={{
-                                    rotate:
-                                      optionTypesDropdownOpen === optionType.id
-                                        ? 180
-                                        : 0,
-                                  }}
-                                  transition={{ duration: 0.3 }}
-                                >
-                                  <FaChevronDown
-                                    size={12}
-                                    className="text-purple-600 dark:text-purple-400"
-                                  />
-                                </motion.div>
+                                <FaTrash size={14} />
                               </button>
-
-                              {optionTypesDropdownOpen === optionType.id && (
-                                <motion.ul
-                                  initial={{ opacity: 0, y: -5 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  exit={{ opacity: 0, y: -5 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="absolute z-50 mt-1 w-full bg-white border border-gray-200 shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto dark:bg-gray-600 dark:border-gray-500"
-                                >
-                                  {optionTypes.map((type) => (
-                                    <li
-                                      key={type.id}
-                                      onClick={() => {
-                                        updateMenuItemOption(
-                                          optionType.id,
-                                          "typeId",
-                                          type.id
-                                        );
-                                        setOptionTypesDropdownOpen(null);
-                                      }}
-                                      className="px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 cursor-pointer text-gray-700 transition-all text-xs border-b border-gray-100 last:border-b-0 dark:hover:from-gray-500 dark:hover:to-gray-400 dark:text-gray-300 dark:border-gray-500"
-                                    >
-                                      <div className="flex flex-col">
-                                        <span>{type.name}</span>
-                                        <div className="flex gap-2 mt-1">
-                                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                                            {type.canSelectMultipleOptions
-                                              ? "✓ متعدد"
-                                              : "✗ فردي"}
-                                          </span>
-                                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                                            {type.isSelectionRequired
-                                              ? "✓ مطلوب"
-                                              : "✗ اختياري"}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </li>
-                                  ))}
-                                </motion.ul>
-                              )}
                             </div>
-                          </div>
 
-                          <div className="space-y-3 xs:space-y-4">
-                            {optionType.options.map((option, optionIndex) => (
-                              <div
-                                key={option.id}
-                                className="grid grid-cols-1 md:grid-cols-3 gap-2 xs:gap-3 p-3 bg-gray-50/50 rounded-lg dark:bg-gray-700/50"
-                              >
-                                <div>
-                                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                    اسم الإضافة *
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={option.name}
-                                    onChange={(e) =>
-                                      updateOption(
-                                        optionType.id,
-                                        option.id,
-                                        "name",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-xs dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                                    placeholder="اسم الإضافة"
-                                    required
-                                  />
-                                </div>
+                            <div className="mb-3 xs:mb-4">
+                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                نوع الإضافة *
+                              </label>
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setOptionTypesDropdownOpen(
+                                      optionTypesDropdownOpen === optionType.id
+                                        ? null
+                                        : optionType.id
+                                    )
+                                  }
+                                  className="w-full flex items-center justify-between border border-gray-200 bg-white rounded-lg px-3 py-2 text-black focus:ring-2 focus:ring-purple-500 transition-all duration-200 text-xs dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                >
+                                  <span>
+                                    {optionType.typeId
+                                      ? optionTypes.find(
+                                          (type) =>
+                                            type.id === optionType.typeId
+                                        )?.name || "اختر النوع"
+                                      : "اختر النوع"}
+                                  </span>
+                                  <motion.div
+                                    animate={{
+                                      rotate:
+                                        optionTypesDropdownOpen ===
+                                        optionType.id
+                                          ? 180
+                                          : 0,
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                  >
+                                    <FaChevronDown
+                                      size={12}
+                                      className="text-purple-600 dark:text-purple-400"
+                                    />
+                                  </motion.div>
+                                </button>
 
-                                <div>
-                                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                    السعر (جنيه) *
-                                  </label>
-                                  <input
-                                    type="number"
-                                    value={option.price}
-                                    onChange={(e) =>
-                                      updateOption(
-                                        optionType.id,
-                                        option.id,
-                                        "price",
-                                        e.target.value
-                                      )
-                                    }
-                                    step="0.01"
-                                    min="0"
-                                    className="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-xs dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                                    placeholder="0.00"
-                                    required
-                                  />
-                                </div>
+                                {optionTypesDropdownOpen === optionType.id && (
+                                  <motion.ul
+                                    initial={{ opacity: 0, y: -5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -5 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="absolute z-50 mt-1 w-full bg-white border border-gray-200 shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto dark:bg-gray-600 dark:border-gray-500"
+                                  >
+                                    {optionTypes.map((type) => (
+                                      <li
+                                        key={type.id}
+                                        onClick={() => {
+                                          updateMenuItemOption(
+                                            optionType.id,
+                                            "typeId",
+                                            type.id
+                                          );
+                                          setOptionTypesDropdownOpen(null);
+                                        }}
+                                        className="px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 cursor-pointer text-gray-700 transition-all text-xs border-b border-gray-100 last:border-b-0 dark:hover:from-gray-500 dark:hover:to-gray-400 dark:text-gray-300 dark:border-gray-500"
+                                      >
+                                        <div className="flex flex-col">
+                                          <span>{type.name}</span>
+                                          <div className="flex gap-2 mt-1">
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                              {type.canSelectMultipleOptions
+                                                ? "✓ متعدد"
+                                                : "✗ فردي"}
+                                            </span>
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                              {type.isSelectionRequired
+                                                ? "✓ مطلوب"
+                                                : "✗ اختياري"}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </li>
+                                    ))}
+                                  </motion.ul>
+                                )}
+                              </div>
+                            </div>
 
-                                <div className="flex items-end gap-2">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                      <label className="flex items-center gap-1 cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={option.isAvailableNow}
-                                          onChange={(e) =>
-                                            updateOption(
-                                              optionType.id,
-                                              option.id,
-                                              "isAvailableNow",
-                                              e.target.checked
-                                            )
-                                          }
-                                          className="text-purple-600 focus:ring-purple-500"
-                                        />
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                          متاح الآن
-                                        </span>
-                                      </label>
-                                      <label className="flex items-center gap-1 cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={option.isActive}
-                                          onChange={(e) =>
-                                            updateOption(
-                                              optionType.id,
-                                              option.id,
-                                              "isActive",
-                                              e.target.checked
-                                            )
-                                          }
-                                          className="text-purple-600 focus:ring-purple-500"
-                                        />
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                                          نشط
-                                        </span>
-                                      </label>
-                                    </div>
-                                  </div>
-                                  {optionType.options.length > 1 && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        removeOptionFromType(
+                            <div className="space-y-3 xs:space-y-4">
+                              {optionType.options.map((option, optionIndex) => (
+                                <div
+                                  key={option.id}
+                                  className="grid grid-cols-1 md:grid-cols-3 gap-2 xs:gap-3 p-3 bg-gray-50/50 rounded-lg dark:bg-gray-700/50"
+                                >
+                                  <div>
+                                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                      اسم الإضافة *
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={option.name}
+                                      onChange={(e) =>
+                                        updateOption(
                                           optionType.id,
-                                          option.id
+                                          option.id,
+                                          "name",
+                                          e.target.value
                                         )
                                       }
-                                      className="text-red-500 hover:text-red-700 transition-colors p-1"
-                                    >
-                                      <FaTrash size={12} />
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                                      className="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-xs dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                      placeholder="اسم الإضافة"
+                                      required
+                                    />
+                                  </div>
 
-                          <motion.button
-                            type="button"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => addOptionToType(optionType.id)}
-                            className="mt-3 w-full py-2 border border-dashed border-gray-300 text-gray-600 rounded-lg font-semibold hover:border-purple-500 hover:text-purple-600 transition-all duration-300 text-xs flex items-center justify-center gap-2 dark:border-gray-500 dark:text-gray-400 dark:hover:border-purple-500 dark:hover:text-purple-400"
-                          >
-                            <FaPlus size={10} />
-                            إضافة خيار جديد لهذا النوع
-                          </motion.button>
-                        </div>
-                      ))}
+                                  <div>
+                                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                      السعر (جنيه) *
+                                    </label>
+                                    <input
+                                      type="number"
+                                      value={option.price}
+                                      onChange={(e) =>
+                                        updateOption(
+                                          optionType.id,
+                                          option.id,
+                                          "price",
+                                          e.target.value
+                                        )
+                                      }
+                                      step="0.01"
+                                      min="0"
+                                      className="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-xs dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                      placeholder="0.00"
+                                      required
+                                    />
+                                  </div>
+
+                                  <div className="flex items-end gap-2">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <label className="flex items-center gap-1 cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            checked={option.isAvailableNow}
+                                            onChange={(e) =>
+                                              updateOption(
+                                                optionType.id,
+                                                option.id,
+                                                "isAvailableNow",
+                                                e.target.checked
+                                              )
+                                            }
+                                            className="text-purple-600 focus:ring-purple-500"
+                                          />
+                                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                                            متاح الآن
+                                          </span>
+                                        </label>
+                                        <label className="flex items-center gap-1 cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            checked={option.isActive}
+                                            onChange={(e) =>
+                                              updateOption(
+                                                optionType.id,
+                                                option.id,
+                                                "isActive",
+                                                e.target.checked
+                                              )
+                                            }
+                                            className="text-purple-600 focus:ring-purple-500"
+                                          />
+                                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                                            نشط
+                                          </span>
+                                        </label>
+                                      </div>
+                                    </div>
+                                    {optionType.options.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeOptionFromType(
+                                            optionType.id,
+                                            option.id
+                                          )
+                                        }
+                                        className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                      >
+                                        <FaTrash size={12} />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <motion.button
+                              type="button"
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => addOptionToType(optionType.id)}
+                              className="mt-3 w-full py-2 border border-dashed border-gray-300 text-gray-600 rounded-lg font-semibold hover:border-purple-500 hover:text-purple-600 transition-all duration-300 text-xs flex items-center justify-center gap-2 dark:border-gray-500 dark:text-gray-400 dark:hover:border-purple-500 dark:hover:text-purple-400"
+                            >
+                              <FaPlus size={10} />
+                              إضافة خيار جديد لهذا النوع
+                            </motion.button>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <motion.button
@@ -1864,6 +2036,17 @@ const ProductForm = () => {
                       <FaPlus size={12} />
                       إضافة نوع إضافة جديد
                     </motion.button>
+
+                    {formData.IsPriceBasedOnRequest &&
+                      !hasRequiredOptionTypes() && (
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-xs text-red-700">
+                            <span className="font-semibold">تنبيه:</span> المنتج
+                            بسعر حسب الطلب يجب أن يحتوي على أنواع إضافات مطلوبة
+                            للاختيار.
+                          </p>
+                        </div>
+                      )}
                   </motion.div>
                 )}
 
@@ -2098,10 +2281,20 @@ const ProductForm = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={
-                      !isFormValid() || isLoading || (isEditing && !hasChanges)
+                      !isFormValid() ||
+                      isLoading ||
+                      (isEditing && !hasChanges) ||
+                      (!isEditing &&
+                        formData.IsPriceBasedOnRequest &&
+                        !hasRequiredOptionTypes())
                     }
                     className={`flex-1 py-2 xs:py-2.5 sm:py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-1.5 xs:gap-2 text-xs xs:text-sm sm:text-base ${
-                      isFormValid() && !isLoading && (!isEditing || hasChanges)
+                      isFormValid() &&
+                      !isLoading &&
+                      (!isEditing || hasChanges) &&
+                      (!formData.IsPriceBasedOnRequest ||
+                        hasRequiredOptionTypes() ||
+                        isEditing)
                         ? "bg-gradient-to-r from-[#E41E26] to-[#FDB913] text-white hover:shadow-xl hover:shadow-[#E41E26]/25 cursor-pointer"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400"
                     }`}

@@ -181,7 +181,7 @@ const translateOfferErrorMessage = (errorData, useHTML = true) => {
           (msg) =>
             `<div style="direction: rtl; text-align: right; margin-bottom: 8px; padding-right: 15px; position: relative;">
              ${msg}
-             <span style="position: absolute; right: 0; top: 0;">-</span>
+             <span style="position: absolute; right: 0; top: 0;">1</span>
            </div>`
         );
         return htmlMessages.join("");
@@ -972,7 +972,15 @@ export default function ItemOffersManagement() {
                                   السعر الأصلي
                                 </p>
                                 <p className="font-bold text-blue-600 dark:text-blue-400 text-2xl">
-                                  ج.م {offer.menuItem?.basePrice || "غير متاح"}
+                                  {offer.menuItem?.basePrice === 0 ? (
+                                    <span className="text-[#E41E26] dark:text-[#FDB913] font-bold">
+                                      السعر حسب الطلب
+                                    </span>
+                                  ) : (
+                                    `ج.م ${
+                                      offer.menuItem?.basePrice || "غير متاح"
+                                    }`
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -1185,8 +1193,10 @@ export default function ItemOffersManagement() {
                                       item.id.toString() === formData.menuItemId
                                   );
                                   return selectedItem
-                                    ? `${selectedItem.name} - ج.م ${
-                                        selectedItem.basePrice
+                                    ? `${selectedItem.name} - ${
+                                        selectedItem.basePrice === 0
+                                          ? "السعر حسب الطلب"
+                                          : `ج.م ${selectedItem.basePrice}`
                                       }${
                                         selectedItem.category
                                           ? ` (${selectedItem.category.name})`
@@ -1252,7 +1262,9 @@ export default function ItemOffersManagement() {
                                         {item.name}
                                       </div>
                                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        ج.م {item.basePrice}
+                                        {item.basePrice === 0
+                                          ? "السعر حسب الطلب"
+                                          : `ج.م ${item.basePrice}`}
                                         {item.category &&
                                           ` • ${item.category.name}`}
                                       </div>

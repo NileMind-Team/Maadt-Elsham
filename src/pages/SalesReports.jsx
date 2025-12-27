@@ -511,8 +511,20 @@ const OrderDetailsModal = ({ order, onClose, users }) => {
             {order.items && order.items.length > 0 ? (
               <div className="space-y-4">
                 {order.items.map((item, index) => {
-                  // حساب السعر النهائي للمنتج
                   const itemFinalPrice = calculateItemFinalPrice(item);
+
+                  const basePrice =
+                    item.menuItem?.basePrice || item.basePriceAtOrder || 0;
+                  const isPriceBasedOnRequest = basePrice === 0;
+
+                  const itemPriceWithOptions = (
+                    ((item.menuItem?.basePrice || 0) +
+                      (item.options?.reduce(
+                        (sum, option) => sum + (option.optionPriceAtOrder || 0),
+                        0
+                      ) || 0)) *
+                    (item.quantity || 1)
+                  ).toFixed(2);
 
                   return (
                     <div
@@ -590,8 +602,13 @@ const OrderDetailsModal = ({ order, onClose, users }) => {
                                 السعر الأساسي
                               </p>
                               <p className="font-bold text-lg text-green-600 dark:text-green-400">
-                                {item.menuItem?.basePrice?.toFixed(2) || "0.00"}{" "}
-                                ج.م
+                                {isPriceBasedOnRequest ? (
+                                  <span className="text-[#E41E26] dark:text-[#FDB913]">
+                                    السعر حسب الطلب
+                                  </span>
+                                ) : (
+                                  `${basePrice.toFixed(2)} ج.م`
+                                )}
                               </p>
                             </div>
                           </div>
@@ -646,17 +663,7 @@ const OrderDetailsModal = ({ order, onClose, users }) => {
                                   السعر
                                 </p>
                                 <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                  {(
-                                    ((item.menuItem?.basePrice || 0) +
-                                      (item.options?.reduce(
-                                        (sum, option) =>
-                                          sum +
-                                          (option.optionPriceAtOrder || 0),
-                                        0
-                                      ) || 0)) *
-                                    (item.quantity || 1)
-                                  ).toFixed(2)}{" "}
-                                  ج.م
+                                  {itemPriceWithOptions} ج.م
                                 </p>
                               </div>
 

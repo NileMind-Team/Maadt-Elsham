@@ -112,6 +112,7 @@ const Favorites = () => {
               category: productData.category?.name?.toLowerCase() || "meals",
               categoryId: productData.category?.id,
               price: productData.basePrice,
+              isPriceBasedOnRequest: productData.basePrice === 0,
               image: productData.imageUrl
                 ? `https://restaurant-template.runasp.net/${productData.imageUrl}`
                 : "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
@@ -388,6 +389,62 @@ const Favorites = () => {
     }
   };
 
+  const formatPriceDisplayMobile = (product) => {
+    if (product.isPriceBasedOnRequest) {
+      return (
+        <div className="text-[#E41E26] font-bold text-sm">السعر حسب الطلب</div>
+      );
+    }
+
+    if (product.itemOffer && product.itemOffer.isEnabled) {
+      return (
+        <>
+          <div className="text-gray-400 dark:text-gray-500 text-xs line-through">
+            {product.price} ج.م
+          </div>
+          <div className="text-[#E41E26] font-bold text-sm">
+            {product.finalPrice.toFixed(2)} ج.م
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="text-[#E41E26] font-bold text-sm">
+        {product.price} ج.م
+      </div>
+    );
+  };
+
+  const formatPriceDisplay = (product) => {
+    if (product.isPriceBasedOnRequest) {
+      return (
+        <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
+          السعر حسب الطلب
+        </div>
+      );
+    }
+
+    if (product.itemOffer && product.itemOffer.isEnabled) {
+      return (
+        <>
+          <div className="text-gray-400 dark:text-gray-500 text-sm line-through">
+            {product.price} ج.م
+          </div>
+          <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
+            {product.finalPrice.toFixed(2)} ج.م
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
+        {product.price} ج.م
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#fff8e7] to-[#ffe5b4] dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 px-4">
@@ -543,21 +600,7 @@ const Favorites = () => {
                           </p>
 
                           <div className="flex items-center gap-1 mb-3">
-                            {product.itemOffer &&
-                            product.itemOffer.isEnabled ? (
-                              <>
-                                <div className="text-gray-400 dark:text-gray-500 text-xs line-through">
-                                  {product.price} ج.م
-                                </div>
-                                <div className="text-[#E41E26] font-bold text-sm">
-                                  {product.finalPrice.toFixed(2)} ج.م
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-[#E41E26] font-bold text-sm">
-                                {product.price} ج.م
-                              </div>
-                            )}
+                            {formatPriceDisplayMobile(product)}
                           </div>
                         </div>
                       </div>
@@ -638,20 +681,7 @@ const Favorites = () => {
 
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          {product.itemOffer && product.itemOffer.isEnabled ? (
-                            <>
-                              <div className="text-gray-400 dark:text-gray-500 text-sm line-through">
-                                {product.price} ج.م
-                              </div>
-                              <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
-                                {product.finalPrice.toFixed(2)} ج.م
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-[#E41E26] font-bold text-lg sm:text-xl">
-                              {product.price} ج.م
-                            </div>
-                          )}
+                          {formatPriceDisplay(product)}
                         </div>
                         <motion.button
                           whileHover={{ scale: 1.1 }}
@@ -666,7 +696,7 @@ const Favorites = () => {
                           className="p-2 sm:p-2.5 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center no-product-details text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30"
                         >
                           <FaHeart size={18} />
-                        </motion.button>{" "}
+                        </motion.button>
                       </div>
 
                       <div className="flex gap-2 mt-3 sm:mt-4">

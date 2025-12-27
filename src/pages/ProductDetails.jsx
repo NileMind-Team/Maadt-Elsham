@@ -263,6 +263,7 @@ const ProductDetails = () => {
         category: productData.category?.name?.toLowerCase() || "meals",
         categoryId: productData.category?.id,
         price: productData.basePrice,
+        isPriceBasedOnRequest: productData.basePrice === 0,
         finalPrice: finalPrice,
         image: productData.imageUrl
           ? `https://restaurant-template.runasp.net/${productData.imageUrl}`
@@ -389,6 +390,35 @@ const ProductDetails = () => {
     }
   };
 
+  const formatPriceDisplay = (product) => {
+    if (product.isPriceBasedOnRequest) {
+      return (
+        <div className="text-[#E41E26] font-bold text-2xl md:text-3xl">
+          السعر حسب الطلب
+        </div>
+      );
+    }
+
+    if (product.itemOffer && product.itemOffer.isEnabled) {
+      return (
+        <>
+          <div className="text-gray-400 dark:text-gray-500 text-base md:text-lg line-through">
+            {toArabicNumbers(product.price)} ج.م
+          </div>
+          <div className="text-[#E41E26] font-bold text-2xl md:text-3xl">
+            {toArabicNumbers(product.finalPrice.toFixed(2))} ج.م
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="text-[#E41E26] font-bold text-2xl md:text-3xl">
+        {toArabicNumbers(product.price)} ج.م
+      </div>
+    );
+  };
+
   const isCategoryDisabled = () => {
     if (!categoryInfo) return false;
     return !categoryInfo.isActive;
@@ -440,12 +470,15 @@ const ProductDetails = () => {
   const calculateTotalPrice = () => {
     if (!product) return 0;
 
-    const basePrice =
-      product.itemOffer && product.itemOffer.isEnabled
-        ? product.finalPrice
-        : product.price;
+    let total = 0;
 
-    let total = basePrice * quantity;
+    if (!product.isPriceBasedOnRequest) {
+      const basePrice =
+        product.itemOffer && product.itemOffer.isEnabled
+          ? product.finalPrice
+          : product.price;
+      total = basePrice * quantity;
+    }
 
     Object.values(selectedAddons).forEach((optionIds) => {
       optionIds.forEach((optionId) => {
@@ -1388,20 +1421,7 @@ const ProductDetails = () => {
                     </p>
 
                     <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-4">
-                      {product.itemOffer && product.itemOffer.isEnabled ? (
-                        <>
-                          <div className="text-gray-400 dark:text-gray-500 text-base md:text-lg line-through">
-                            {toArabicNumbers(product.price)} ج.م
-                          </div>
-                          <div className="text-[#E41E26] font-bold text-2xl md:text-3xl">
-                            {toArabicNumbers(product.finalPrice.toFixed(2))} ج.م
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-[#E41E26] font-bold text-2xl md:text-3xl">
-                          {toArabicNumbers(product.price)} ج.م
-                        </div>
-                      )}
+                      {formatPriceDisplay(product)}
                     </div>
                   </div>
 
