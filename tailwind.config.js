@@ -9,5 +9,5 @@ module.exports = {
       rubik: ['"Rubik Vinyl", serif'],
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/line-clamp")],
 };

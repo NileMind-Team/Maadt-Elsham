@@ -1858,6 +1858,7 @@ export default function Cart() {
                               {item.description}
                             </p>
 
+                            {/* Prep Time */}
                             {item.prepTime && (
                               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2">
                                 <FaClock
@@ -1865,6 +1866,20 @@ export default function Cart() {
                                   size={12}
                                 />
                                 <span>{item.prepTime}</span>
+                              </div>
+                            )}
+
+                            {/* Notes - New Section Added */}
+                            {item.note && (
+                              <div className="flex items-start gap-2 text-xs sm:text-sm text-green-600 dark:text-green-400 mt-2 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg">
+                                <FaStickyNote
+                                  className="text-green-500 dark:text-green-400 mt-0.5"
+                                  size={12}
+                                />
+                                <span className="font-medium">ملاحظة:</span>
+                                <span className="flex-1 break-words max-w-[150px] line-clamp-2">
+                                  {item.note}
+                                </span>
                               </div>
                             )}
                           </div>
