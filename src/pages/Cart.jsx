@@ -1358,6 +1358,10 @@ export default function Cart() {
             errorMessages.push(
               "الفرع المختار غير نشط حالياً. الرجاء اختيار فرع آخر أو المحاولة عندما يكون الفرع نشطاً."
             );
+          } else if (errorItem.code === "Branch.OutOfWorkingHours") {
+            errorMessages.push(
+              "الفرع المختار خارج ساعات العمل حالياً. الرجاء المحاولة خلال ساعات العمل أو اختيار فرع آخر."
+            );
           } else if (errorItem.code === "DeliveryFee.NotActive") {
             errorMessages.push(
               `رسوم ${
@@ -2482,25 +2486,25 @@ export default function Cart() {
 
               {/* Additional Notes */}
               {/* <div className="mt-4 sm:mt-6">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  ملاحظات إضافية للطلب الكامل
-                </label>
-                <textarea
-                  value={additionalNotes}
-                  onChange={(e) => setAdditionalNotes(e.target.value)}
-                  placeholder="أضف ملاحظات أو تعليمات خاصة للطلب الكامل..."
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-transparent resize-none h-32"
-                  dir="rtl"
-                  maxLength={500}
-                />
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    اختياري
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {additionalNotes.length}/500
-                  </span>
-                </div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              ملاحظات إضافية للطلب الكامل
+            </label>
+            <textarea
+              value={additionalNotes}
+              onChange={(e) => setAdditionalNotes(e.target.value)}
+              placeholder="أضف ملاحظات أو تعليمات خاصة للطلب الكامل..."
+              className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg sm:rounded-xl dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[#E41E26] focus:border-transparent resize-none h-32"
+              dir="rtl"
+              maxLength={500}
+            />
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                اختياري
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {additionalNotes.length}/500
+              </span>
+            </div>
               </div> */}
             </motion.div>
           </div>
