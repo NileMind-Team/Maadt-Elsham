@@ -1183,10 +1183,15 @@ const OrderShiftsReport = () => {
                             >
                               <div className="flex justify-between items-center">
                                 <span>{shift.name}</span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 flex flex-col items-end">
                                   {shift.start
                                     ? formatTimeTo12Hour(shift.start)
                                     : "غير محدد"}
+                                  {shift.end && (
+                                    <span className="text-[10px] text-gray-400">
+                                      حتى {formatTimeTo12Hour(shift.end)}
+                                    </span>
+                                  )}
                                 </span>
                               </div>
                             </li>

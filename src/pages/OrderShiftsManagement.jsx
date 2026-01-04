@@ -126,10 +126,90 @@ const addTwoHoursAndFormatTo12Hour = (timeString) => {
   if (!timeString) return "غير محدد";
 
   try {
-    const timePart = timeString.split(".")[0];
+    const timeMatch = timeString.match(/(\d{2}):(\d{2}):(\d{2})/);
+    if (!timeMatch) return "غير محدد";
 
-    // eslint-disable-next-line no-unused-vars
-    const [hours, minutes, seconds] = timePart.split(":").map(Number);
+    const hours = parseInt(timeMatch[1], 10);
+    const minutes = parseInt(timeMatch[2], 10);
+
+    const dateMatch = timeString.match(/(\d{4})-(\d{2})-(\d{2})T/);
+    let dateText = "";
+
+    if (dateMatch) {
+      const year = parseInt(dateMatch[1]);
+      const month = parseInt(dateMatch[2]);
+      const day = parseInt(dateMatch[3]);
+
+      let adjustedHours = hours + 2;
+      let adjustedDay = day;
+      let adjustedMonth = month;
+      let adjustedYear = year;
+
+      if (adjustedHours >= 24) {
+        adjustedHours = adjustedHours % 24;
+        adjustedDay = adjustedDay + 1;
+
+        const newDate = new Date(adjustedYear, adjustedMonth - 1, adjustedDay);
+        adjustedDay = newDate.getDate();
+        adjustedMonth = newDate.getMonth() + 1;
+        adjustedYear = newDate.getFullYear();
+      }
+
+      const arabicNumbers = {
+        0: "٠",
+        1: "١",
+        2: "٢",
+        3: "٣",
+        4: "٤",
+        5: "٥",
+        6: "٦",
+        7: "٧",
+        8: "٨",
+        9: "٩",
+      };
+
+      const convertToArabicNumbers = (num) => {
+        return num
+          .toString()
+          .split("")
+          .map((digit) => arabicNumbers[digit] || digit)
+          .join("");
+      };
+
+      const arabicYear = convertToArabicNumbers(adjustedYear);
+      const arabicMonth = convertToArabicNumbers(adjustedMonth);
+      const arabicDay = convertToArabicNumbers(adjustedDay);
+
+      dateText = `${arabicYear}/${arabicMonth}/${arabicDay}`;
+    } else {
+      const now = new Date();
+      const arabicNumbers = {
+        0: "٠",
+        1: "١",
+        2: "٢",
+        3: "٣",
+        4: "٤",
+        5: "٥",
+        6: "٦",
+        7: "٧",
+        8: "٨",
+        9: "٩",
+      };
+
+      const convertToArabicNumbers = (num) => {
+        return num
+          .toString()
+          .split("")
+          .map((digit) => arabicNumbers[digit] || digit)
+          .join("");
+      };
+
+      const arabicYear = convertToArabicNumbers(now.getFullYear());
+      const arabicMonth = convertToArabicNumbers(now.getMonth() + 1);
+      const arabicDay = convertToArabicNumbers(now.getDate());
+
+      dateText = `${arabicYear}/${arabicMonth}/${arabicDay}`;
+    }
 
     let newHours = hours + 2;
 
@@ -153,13 +233,36 @@ const addTwoHoursAndFormatTo12Hour = (timeString) => {
       period = "ص";
     }
 
-    const formattedHours = displayHours.toString();
-    const formattedMinutes = minutes.toString().padStart(2, "0");
+    const arabicNumbers = {
+      0: "٠",
+      1: "١",
+      2: "٢",
+      3: "٣",
+      4: "٤",
+      5: "٥",
+      6: "٦",
+      7: "٧",
+      8: "٨",
+      9: "٩",
+    };
 
-    return `${formattedHours}:${formattedMinutes} ${period}`;
+    const convertToArabicNumbers = (num) => {
+      return num
+        .toString()
+        .split("")
+        .map((digit) => arabicNumbers[digit] || digit)
+        .join("");
+    };
+
+    const formattedHours = convertToArabicNumbers(displayHours);
+    const formattedMinutes = convertToArabicNumbers(
+      minutes.toString().padStart(2, "0")
+    );
+
+    return `${dateText} الساعة ${formattedHours}:${formattedMinutes} ${period}`;
   } catch (error) {
-    console.error("Error processing time:", error);
-    return timeString.split(".")[0];
+    console.error("Error processing time:", error, timeString);
+    return "غير محدد";
   }
 };
 
