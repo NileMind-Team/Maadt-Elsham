@@ -1167,7 +1167,7 @@ const SalesReports = () => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تقرير المبيعات - Chicken One</title>
+<title>تقرير المبيعات - مائدة الشام</title>
 <style>
   @media print {
     @page { margin: 0; size: A4 portrait; }
@@ -1320,7 +1320,7 @@ const SalesReports = () => {
 <body>
 
 <div class="print-header">
-  <h1>تقرير المبيعات - Chicken One</h1>
+  <h1>تقرير المبيعات - مائدة الشام</h1>
   <p>نظام إدارة المطاعم</p>
 </div>
 
@@ -1475,7 +1475,7 @@ ${
     /\d/g,
     (d) => toArabicNumbers(d)
   )}</p>
-  <p>Chicken One © ${toArabicNumbers(new Date().getFullYear())}</p>
+  <p>مائدة الشام © ${toArabicNumbers(new Date().getFullYear())}</p>
 </div>
 
 </body>
@@ -1651,7 +1651,7 @@ ${
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تقرير اليوم - Chicken One</title>
+<title>تقرير اليوم - مائدة الشام</title>
 <style>
   @media print {
     @page { margin: 0; size: A4 portrait; }
@@ -1851,7 +1851,7 @@ ${
 <body>
 
 <div class="print-header">
-  <h1>تقرير اليوم - Chicken One</h1>
+  <h1>تقرير اليوم - مائدة الشام</h1>
   <h2>${format(todayStart, "dd/MM/yyyy").replace(/\d/g, (d) =>
     toArabicNumbers(d)
   )}</h2>
@@ -2085,7 +2085,7 @@ ${
     /\d/g,
     (d) => toArabicNumbers(d)
   )}</p>
-  <p>Chicken One © ${toArabicNumbers(new Date().getFullYear())}</p>
+  <p>مائدة الشام © ${toArabicNumbers(new Date().getFullYear())}</p>
 </div>
 
 </body>
