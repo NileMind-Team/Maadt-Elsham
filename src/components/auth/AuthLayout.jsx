@@ -61,6 +61,7 @@ const AuthLayout = forwardRef(
               <div className="space-y-6 mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight text-right">
                   مرحباً بك في{" "}
+                  <br></br>
                   <span className="bg-gradient-to-r from-[#E41E26] to-[#FDB913] bg-clip-text text-transparent">
                     مائدة الشام
                   </span>
